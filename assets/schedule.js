@@ -2,6 +2,8 @@
   const CONFIG = window.CHILL_FEST_CONFIG || {};
   const endpoint = String(CONFIG.registrationEndpoint || '');
 
+  const showSchedule = CONFIG.showSchedule === true;
+
   const results = document.getElementById('schedule-results');
   const summary = document.getElementById('schedule-summary');
   const divisionFilter = document.getElementById('schedule-division');
@@ -204,10 +206,31 @@
     `;
   };
 
-  if (!endpoint) {
-    showScheduleError();
-    return;
-  }
+const showComingSoon = () => {
+  summary.textContent = '';
+
+  results.innerHTML = `
+    <div class="schedule-empty schedule-coming-soon">
+      <div class="schedule-empty-icon">🗓️</div>
+      <h2>Schedule Coming Soon</h2>
+      <p>
+        The official 2026 schedule will appear here after registration closes
+        and divisions are finalized.
+      </p>
+      <a class="btn" href="register.html">Register Your Team</a>
+    </div>
+  `;
+};
+  
+  if (!showSchedule) {
+  showComingSoon();
+  return;
+}
+
+if (!endpoint) {
+  showScheduleError();
+  return;
+}
 
   const callbackName =
     `loadChillFestSchedule_${Date.now()}`;
