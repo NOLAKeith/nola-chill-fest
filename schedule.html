@@ -6,7 +6,7 @@
 <title>Tournament Schedule | NOLA Chill Fest</title>
 <link rel="stylesheet" href="assets/styles.css">
 <style>
-.schedule-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:22px}
+.schedule-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}
 .schedule-summary{margin:0 0 18px;color:#667085;font-weight:700}
 .schedule-list{display:grid;gap:22px}
 .schedule-day h2{margin:0 0 12px;font-size:clamp(1.25rem,4vw,1.65rem)}
@@ -54,10 +54,22 @@
   <section class="content">
     <div class="wrap">
       <div class="schedule-controls">
-        <select class="select" id="schedule-division" aria-label="Filter by division"><option value="">All divisions</option></select>
-        <select class="select" id="schedule-date" aria-label="Filter by date"><option value="">All dates</option></select>
-        <select class="select" id="schedule-field" aria-label="Filter by field"><option value="">All fields</option></select>
-      </div>
+  <select class="select" id="schedule-division" aria-label="Filter by division">
+    <option value="">All divisions</option>
+  </select>
+
+  <select class="select" id="schedule-team" aria-label="Filter by team">
+    <option value="">All teams</option>
+  </select>
+
+  <select class="select" id="schedule-date" aria-label="Filter by date">
+    <option value="">All dates</option>
+  </select>
+
+  <select class="select" id="schedule-field" aria-label="Filter by field">
+    <option value="">All fields</option>
+  </select>
+</div>
       <p class="schedule-summary" id="schedule-summary">Loading schedule…</p>
       <div id="schedule-results" class="schedule-list" aria-live="polite"></div>
     </div>
