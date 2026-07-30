@@ -3,7 +3,8 @@
   const endpoint = String(CONFIG.registrationEndpoint || '');
 
   const showSchedule = CONFIG.showSchedule === true;
-
+  const controls = document.getElementById('schedule-controls');
+  
   const results = document.getElementById('schedule-results');
   const summary = document.getElementById('schedule-summary');
   const divisionFilter = document.getElementById('schedule-division');
@@ -207,6 +208,7 @@
   };
 
 const showComingSoon = () => {
+  controls.hidden = true;
   summary.textContent = '';
 
   results.innerHTML = `
