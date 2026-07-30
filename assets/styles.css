@@ -32,3 +32,59 @@
 .home-utility{padding:44px 0}.utility-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:20px}.countdown-card h2{font-size:clamp(38px,5vw,62px);margin:18px 0 10px;color:var(--cyan)}.update-item{display:grid;gap:4px;padding:14px 0;border-bottom:1px solid var(--line)}.update-item:last-child{border-bottom:0}.update-item span{color:var(--muted);font-size:14px}.hosted-grid{display:grid;grid-template-columns:1.3fr .7fr;align-items:center;gap:40px}.hosted-grid h2{font-size:clamp(50px,7vw,82px);margin:16px 0}.hosted-grid p{color:#53697c;max-width:670px}.hosted-mark{font:900 74px/0.78 'Barlow Condensed';text-align:center;color:#071526}.hosted-mark span{color:var(--blue);font-style:italic}.empty.compact{padding:38px 22px}.empty.compact h2{font-size:38px}.contact-people{display:grid;grid-template-columns:1fr 1fr;gap:22px}.person-card .role,.tier-label{color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.person-card h2,.sponsor-contact h2,.venue-contact h2{font-size:clamp(42px,5vw,62px);margin:15px 0}.contact-actions{display:grid;gap:10px;margin-top:22px}.contact-actions a{color:var(--cyan);font-weight:800;overflow-wrap:anywhere}.venue-contact{margin-top:22px;border:1px solid var(--line);border-radius:var(--radius);padding:34px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(145deg,rgba(15,39,65,.92),rgba(7,22,39,.93))}.venue-pin{font-size:72px}.sponsor-tier{min-height:220px}.sponsor-tier h3{margin-top:18px}.sponsor-contact{margin:24px 0;display:flex;justify-content:space-between;align-items:center;gap:30px}.sponsor-placeholder{margin-top:24px}.bracket-card{min-height:310px;display:flex;flex-direction:column;justify-content:space-between}.bracket-card p{margin-top:12px}.bracket-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px}.bracket-card-actions .btn{padding:11px 12px}.bracket-card .division{margin-top:8px}
 @media(max-width:900px){.utility-grid,.hosted-grid,.contact-people{grid-template-columns:1fr}.sponsor-contact{align-items:flex-start;flex-direction:column}.hosted-mark{text-align:left}}
 @media(max-width:620px){.home-utility{padding:28px 0}.venue-contact{align-items:flex-start}.venue-pin{font-size:44px}.bracket-card-actions{grid-template-columns:1fr}.bracket-card-actions .btn{width:100%}}
+
+
+/* Standings: full desktop table and compact one-screen mobile table. */
+.standings-mobile{display:none}
+.standings-empty{text-align:center;padding:52px!important;color:var(--muted)}
+.standings-desktop table{min-width:700px}
+.standings-desktop th:not(:nth-child(2)),
+.standings-desktop td:not(:nth-child(2)){text-align:center}
+.standings-desktop th:nth-child(2),
+.standings-desktop td:nth-child(2){text-align:left}
+
+@media(max-width:620px){
+  .standings-desktop{display:none}
+  .standings-mobile{display:block;overflow:visible;border-radius:12px}
+  .standings-mobile table{
+    min-width:0;
+    width:100%;
+    table-layout:fixed;
+    font-size:10px;
+  }
+  .standings-mobile th,
+  .standings-mobile td{
+    padding:9px 4px;
+    text-align:center;
+    white-space:nowrap;
+  }
+  .standings-mobile th{
+    font-size:8px;
+    letter-spacing:.04em;
+  }
+  .standings-mobile th:nth-child(1),
+  .standings-mobile td:nth-child(1){width:7%}
+  .standings-mobile th:nth-child(2),
+  .standings-mobile td:nth-child(2){
+    width:38%;
+    text-align:left;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    line-height:1.25;
+  }
+  .standings-mobile th:nth-child(3),
+  .standings-mobile td:nth-child(3){width:14%}
+  .standings-mobile th:nth-child(4),
+  .standings-mobile td:nth-child(4){width:13%}
+  .standings-mobile th:nth-child(5),
+  .standings-mobile td:nth-child(5),
+  .standings-mobile th:nth-child(6),
+  .standings-mobile td:nth-child(6),
+  .standings-mobile th:nth-child(7),
+  .standings-mobile td:nth-child(7){width:9.33%}
+  .standings-mobile .standings-empty{
+    padding:34px 14px!important;
+    white-space:normal;
+    font-size:12px;
+  }
+}

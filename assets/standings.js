@@ -4,10 +4,11 @@
   const CONFIG = window.CHILL_FEST_CONFIG || {};
   const endpoint = String(CONFIG.registrationEndpoint || '');
   const select = document.querySelector('.filters .select');
-  const tbody = document.querySelector('.table-wrap tbody');
+  const desktopBody = document.querySelector('.standings-desktop tbody');
+  const mobileBody = document.querySelector('.standings-mobile tbody');
   const CACHE_KEY = 'nolaChillFestScheduleV1';
 
-  if (!select || !tbody || !endpoint) return;
+  if (!select || !desktopBody || !mobileBody || !endpoint) return;
 
   let standingsByDivision = {};
 
@@ -17,6 +18,15 @@
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+
+  const formatPct = value => Number(value || 0)
+    .toFixed(3)
+    .replace(/^0/, '');
+
+  const formatDiff = value => {
+    const number = Number(value || 0);
+    return number > 0 ? `+${number}` : String(number);
+  };
 
   const readCachedSchedule = () => {
     try {
@@ -29,9 +39,12 @@
 
   const writeCachedSchedule = games => {
     try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), games }));
+      localStorage.setItem(
+        CACHE_KEY,
+        JSON.stringify({ savedAt: Date.now(), games })
+      );
     } catch (error) {
-      // The live request still works if storage is unavailable.
+      // Live loading still works if browser storage is unavailable.
     }
   };
 
@@ -39,15 +52,19 @@
     const tables = {};
 
     games
-      .filter(game => game.status === 'Final' && String(game.round || '').toLowerCase().includes('pool'))
+      .filter(game =>
+        game.status === 'Final' &&
+        String(game.round || '').toLowerCase().includes('pool')
+      )
       .forEach(game => {
-        const division = game.division || 'Other';
+        const division = String(game.division || 'Other').trim();
         if (!tables[division]) tables[division] = {};
 
         const getTeam = name => {
-          if (!tables[division][name]) {
-            tables[division][name] = {
-              team: name,
+          const teamName = String(name || '').trim();
+          if (!tables[division][teamName]) {
+            tables[division][teamName] = {
+              team: teamName,
               wins: 0,
               losses: 0,
               ties: 0,
@@ -55,11 +72,12 @@
               ra: 0
             };
           }
-          return tables[division][name];
+          return tables[division][teamName];
         };
 
         const awayScore = Number(game.awayScore);
         const homeScore = Number(game.homeScore);
+
         if (!Number.isFinite(awayScore) || !Number.isFinite(homeScore)) return;
 
         const away = getTeam(game.away);
@@ -82,24 +100,45 @@
         }
       });
 
-    return Object.fromEntries(Object.entries(tables).map(([division, teams]) => [
-      division,
-      Object.values(teams)
-        .map(team => {
-          const gamesPlayed = team.wins + team.losses + team.ties;
-          return {
-            ...team,
-            pct: gamesPlayed ? (team.wins + (team.ties * 0.5)) / gamesPlayed : 0
-          };
-        })
-        .sort((a, b) =>
-          b.pct - a.pct ||
-          b.wins - a.wins ||
-          (b.rf - b.ra) - (a.rf - a.ra) ||
-          a.ra - b.ra ||
-          a.team.localeCompare(b.team)
-        )
-    ]));
+    return Object.fromEntries(
+      Object.entries(tables).map(([division, teams]) => [
+        division,
+        Object.values(teams)
+          .map(team => {
+            const gamesPlayed = team.wins + team.losses + team.ties;
+            return {
+              ...team,
+              pct: gamesPlayed
+                ? (team.wins + (team.ties * 0.5)) / gamesPlayed
+                : 0
+            };
+          })
+          .sort((a, b) =>
+            b.pct - a.pct ||
+            b.wins - a.wins ||
+            (b.rf - b.ra) - (a.rf - a.ra) ||
+            a.ra - b.ra ||
+            a.team.localeCompare(b.team)
+          )
+      ])
+    );
+  };
+
+  const renderEmpty = () => {
+    const message =
+      'Standings will populate after official tournament results are entered.';
+
+    desktopBody.innerHTML = `
+      <tr>
+        <td colspan="9" class="standings-empty">${message}</td>
+      </tr>
+    `;
+
+    mobileBody.innerHTML = `
+      <tr>
+        <td colspan="7" class="standings-empty">${message}</td>
+      </tr>
+    `;
   };
 
   const render = () => {
@@ -107,43 +146,65 @@
     const rows = standingsByDivision[division] || [];
 
     if (!division || !rows.length) {
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:52px;color:#9bb0c4">Standings will populate after official tournament results are entered.</td></tr>';
+      renderEmpty();
       return;
     }
 
-    tbody.innerHTML = rows.map((team, index) => `
-      <tr>
-        <td>${index + 1}</td>
-        <td>${escapeHtml(team.team)}</td>
-        <td>${team.wins}</td>
-        <td>${team.losses}</td>
-        <td>${team.ties}</td>
-        <td>${team.pct.toFixed(3).replace(/^0/, '')}</td>
-        <td>${team.rf}</td>
-        <td>${team.ra}</td>
-        <td>${team.rf - team.ra}</td>
-      </tr>
-    `).join('');
+    desktopBody.innerHTML = rows.map((team, index) => {
+      const diff = team.rf - team.ra;
+
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${escapeHtml(team.team)}</td>
+          <td>${team.wins}</td>
+          <td>${team.losses}</td>
+          <td>${team.ties}</td>
+          <td>${formatPct(team.pct)}</td>
+          <td>${team.rf}</td>
+          <td>${team.ra}</td>
+          <td>${formatDiff(diff)}</td>
+        </tr>
+      `;
+    }).join('');
+
+    mobileBody.innerHTML = rows.map((team, index) => {
+      const diff = team.rf - team.ra;
+      const record = `${team.wins}-${team.losses}-${team.ties}`;
+
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${escapeHtml(team.team)}</td>
+          <td>${record}</td>
+          <td>${formatPct(team.pct)}</td>
+          <td>${team.ra}</td>
+          <td>${formatDiff(diff)}</td>
+          <td>${team.rf}</td>
+        </tr>
+      `;
+    }).join('');
   };
 
   const displayStandings = games => {
     standingsByDivision = calculate(games);
     const currentDivision = select.value;
+    const divisions = Object.keys(standingsByDivision)
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
     select.innerHTML = '<option value="">Select division</option>';
-    Object.keys(standingsByDivision)
-      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-      .forEach(division => {
-        const option = document.createElement('option');
-        option.value = division;
-        option.textContent = division;
-        select.appendChild(option);
-      });
+
+    divisions.forEach(division => {
+      const option = document.createElement('option');
+      option.value = division;
+      option.textContent = division;
+      select.appendChild(option);
+    });
 
     if (currentDivision && standingsByDivision[currentDivision]) {
       select.value = currentDivision;
-    } else if (select.options.length > 1) {
-      select.selectedIndex = 1;
+    } else if (divisions.length) {
+      select.value = divisions[0];
     }
 
     render();
@@ -156,15 +217,17 @@
 
   const callbackName = `loadChillFestStandings_${Date.now()}`;
   const script = document.createElement('script');
-  const timeoutId = setTimeout(() => {
+
+  const cleanup = () => {
     script.remove();
     delete window[callbackName];
-  }, 12000);
+  };
+
+  const timeoutId = setTimeout(cleanup, 12000);
 
   window[callbackName] = data => {
     clearTimeout(timeoutId);
-    script.remove();
-    delete window[callbackName];
+    cleanup();
 
     if (!data || !data.ok || !Array.isArray(data.games)) return;
 
@@ -174,10 +237,13 @@
 
   script.onerror = () => {
     clearTimeout(timeoutId);
-    script.remove();
-    delete window[callbackName];
+    cleanup();
   };
 
-  script.src = `${endpoint}?action=schedule&callback=${encodeURIComponent(callbackName)}&v=${Math.floor(Date.now() / 60000)}`;
+  script.src =
+    `${endpoint}?action=schedule` +
+    `&callback=${encodeURIComponent(callbackName)}` +
+    `&v=${Math.floor(Date.now() / 60000)}`;
+
   document.head.appendChild(script);
 })();
