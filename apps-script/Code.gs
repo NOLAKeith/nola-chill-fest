@@ -135,3 +135,138 @@ function output_(payload) {
     .createTextOutput(JSON.stringify(payload))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+/**
+ * Read-only public feeds for approved teams and tournament games.
+ * Registration continues to use the existing doPost() above.
+ */
+function doGet(e) {
+  try {
+    const parameters = (e && e.parameter) || {};
+    const action = String(parameters.action || '').trim().toLowerCase();
+    let payload;
+
+    if (action === 'approved-teams') {
+      payload = getApprovedTeamsPayload_();
+    } else if (action === 'schedule') {
+      payload = getSchedulePayload_();
+    } else {
+      payload = { ok: false, message: 'Unknown action.' };
+    }
+
+    return publicOutput_(payload, parameters.callback);
+  } catch (error) {
+    console.error(error);
+    return publicOutput_(
+      { ok: false, message: error && error.message ? error.message : 'Unable to load data.' },
+      e && e.parameter ? e.parameter.callback : ''
+    );
+  }
+}
+
+function getApprovedTeamsPayload_() {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = spreadsheet.getSheetByName(SETTINGS.sheetName);
+  if (!sheet || sheet.getLastRow() < 2) return { ok: true, teams: [] };
+
+  const values = sheet.getDataRange().getDisplayValues();
+  const map = headerMapPublic_(values[0]);
+  const required = ['Status', 'Team Name', 'Division'];
+  validatePublicHeaders_(map, required, SETTINGS.sheetName);
+
+  const teams = values.slice(1)
+    .filter(row => String(row[map['Status']] || '').trim().toLowerCase() === 'approved')
+    .map(row => ({
+      teamName: String(row[map['Team Name']] || '').trim(),
+      division: String(row[map['Division']] || '').trim(),
+      organization: map['Organization'] === undefined ? '' : String(row[map['Organization']] || '').trim(),
+      teamCity: map['Team City'] === undefined ? '' : String(row[map['Team City']] || '').trim()
+    }))
+    .filter(team => team.teamName)
+    .sort((a, b) => a.division.localeCompare(b.division, undefined, { numeric: true }) || a.teamName.localeCompare(b.teamName));
+
+  return { ok: true, teams: teams };
+}
+
+function getSchedulePayload_() {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = spreadsheet.getSheetByName('Schedule');
+  if (!sheet) throw new Error('Schedule sheet was not found.');
+  if (sheet.getLastRow() < 2) return { ok: true, games: [] };
+
+  const range = sheet.getDataRange();
+  const raw = range.getValues();
+  const display = range.getDisplayValues();
+  const map = headerMapPublic_(display[0]);
+  const required = [
+    'Game ID', 'Date', 'Division', 'Round', 'Away Team', 'Away Score',
+    'Home Team', 'Home Score', 'Field', 'Start Time', 'Status'
+  ];
+  validatePublicHeaders_(map, required, 'Schedule');
+
+  const timeZone = spreadsheet.getSpreadsheetTimeZone() || Session.getScriptTimeZone();
+  const games = [];
+
+  for (let index = 1; index < raw.length; index += 1) {
+    const rawRow = raw[index];
+    const displayRow = display[index];
+    const gameId = String(displayRow[map['Game ID']] || '').trim();
+    const status = String(displayRow[map['Status']] || '').trim();
+
+    if (!gameId || !['Published', 'Final'].includes(status)) continue;
+
+    const dateValue = rawRow[map['Date']];
+    const dateKey = dateValue instanceof Date
+      ? Utilities.formatDate(dateValue, timeZone, 'yyyy-MM-dd')
+      : String(displayRow[map['Date']] || '').trim();
+
+    const awayScoreRaw = rawRow[map['Away Score']];
+    const homeScoreRaw = rawRow[map['Home Score']];
+
+    games.push({
+      gameId: gameId,
+      date: dateKey,
+      dateLabel: String(displayRow[map['Date']] || '').trim(),
+      division: String(displayRow[map['Division']] || '').trim(),
+      round: String(displayRow[map['Round']] || '').trim(),
+      away: String(displayRow[map['Away Team']] || '').trim(),
+      awayScore: awayScoreRaw === '' ? null : Number(awayScoreRaw),
+      home: String(displayRow[map['Home Team']] || '').trim(),
+      homeScore: homeScoreRaw === '' ? null : Number(homeScoreRaw),
+      field: String(displayRow[map['Field']] || '').trim(),
+      time: String(displayRow[map['Start Time']] || '').trim(),
+      status: status
+    });
+  }
+
+  return { ok: true, games: games };
+}
+
+function publicOutput_(payload, callback) {
+  const json = JSON.stringify(payload);
+  const callbackName = String(callback || '').trim();
+
+  if (callbackName && /^[A-Za-z_$][0-9A-Za-z_$\.]*$/.test(callbackName)) {
+    return ContentService
+      .createTextOutput(callbackName + '(' + json + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+
+  return ContentService
+    .createTextOutput(json)
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function headerMapPublic_(headers) {
+  return headers.reduce((map, header, index) => {
+    map[String(header || '').trim()] = index;
+    return map;
+  }, {});
+}
+
+function validatePublicHeaders_(map, required, sheetName) {
+  const missing = required.filter(header => map[header] === undefined);
+  if (missing.length) {
+    throw new Error(sheetName + ' is missing required columns: ' + missing.join(', '));
+  }
+}
