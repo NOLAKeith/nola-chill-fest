@@ -314,15 +314,17 @@
                 </div>
 
                 <div class="schedule-matchup">
-                  <div class="schedule-team">
-                    ${escapeHtml(game.away)}${game.status === 'Final' ? ` <strong class="${scoreClass(game, 'away')}">${escapeHtml(game.awayScore)}</strong>` : ''}
+                  <div class="schedule-team-row">
+                    <span class="schedule-team-name">${escapeHtml(game.away)}</span>
+                    ${game.status === 'Final' ? `<strong class="${scoreClass(game, 'away')}">${escapeHtml(game.awayScore)}</strong>` : ''}
                   </div>
 
-                  <div class="schedule-vs">${game.status === 'Final' ? 'Final' : 'vs'}</div>
-
-                  <div class="schedule-team">
-                    ${game.status === 'Final' ? `<strong class="${scoreClass(game, 'home')}">${escapeHtml(game.homeScore)}</strong> ` : ''}${escapeHtml(game.home)}
+                  <div class="schedule-team-row">
+                    <span class="schedule-team-name">${escapeHtml(game.home)}</span>
+                    ${game.status === 'Final' ? `<strong class="${scoreClass(game, 'home')}">${escapeHtml(game.homeScore)}</strong>` : ''}
                   </div>
+
+                  <div class="schedule-game-status">${game.status === 'Final' ? 'Final' : 'vs'}</div>
                 </div>
               </article>
             `).join('')}
