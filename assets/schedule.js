@@ -31,6 +31,72 @@
       });
   };
 
+  const updateTeamOptions = () => {
+  const selectedDivision = divisionFilter.value;
+  const previousTeam = teamFilter.value;
+
+  const relevantGames = selectedDivision
+    ? games.filter(game => game.division === selectedDivision)
+    : games;
+
+  const teamOptions = relevantGames.flatMap(game => [
+    {
+      value: `${game.division}||${game.away}`,
+      division: game.division,
+      name: game.away
+    },
+    {
+      value: `${game.division}||${game.home}`,
+      division: game.division,
+      name: game.home
+    }
+  ]);
+
+  const uniqueTeams = [
+    ...new Map(
+      teamOptions.map(team => [team.value, team])
+    ).values()
+  ].sort((a, b) => {
+    const divisionCompare = a.division.localeCompare(
+      b.division,
+      undefined,
+      { numeric: true }
+    );
+
+    if (divisionCompare !== 0) {
+      return divisionCompare;
+    }
+
+    return a.name.localeCompare(
+      b.name,
+      undefined,
+      { numeric: true }
+    );
+  });
+
+  teamFilter.innerHTML = '<option value="">All teams</option>';
+
+  uniqueTeams.forEach(team => {
+    const option = document.createElement('option');
+
+    option.value = team.value;
+
+    option.textContent = selectedDivision
+      ? team.name
+      : `${team.division} — ${team.name}`;
+
+    teamFilter.appendChild(option);
+  });
+
+  const previousStillExists = uniqueTeams.some(
+    team => team.value === previousTeam
+  );
+
+  teamFilter.value = previousStillExists
+    ? previousTeam
+    : '';
+};
+  
   const render = () => {
     const filtered = games.filter(game =>
   (!divisionFilter.value ||
@@ -113,9 +179,18 @@
       .join('');
   };
 
-  [divisionFilter, teamFilter, dateFilter, fieldFilter].forEach(element => {
-    element.addEventListener('change', render);
-  });
+  divisionFilter.addEventListener('change', () => {
+  updateTeamOptions();
+  render();
+});
+
+[
+  teamFilter,
+  dateFilter,
+  fieldFilter
+].forEach(element => {
+  element.addEventListener('change', render);
+});
 
   const showScheduleError = () => {
     summary.textContent = 'Schedule unavailable';
@@ -167,38 +242,12 @@
 
     games = data.games;
 
-const teamOptions = games.flatMap(game => [
-  {
-    value: `${game.division}||${game.away}`,
-    label: `${game.division} — ${game.away}`
-  },
-  {
-    value: `${game.division}||${game.home}`,
-    label: `${game.division} — ${game.home}`
-  }
-]);
-
-const uniqueTeams = [
-  ...new Map(
-    teamOptions.map(team => [team.value, team])
-  ).values()
-].sort((a, b) =>
-  a.label.localeCompare(b.label, undefined, { numeric: true })
-);
-    
 const dateLabels = Object.fromEntries(
   games.map(game => [
     game.date,
     game.dateLabel
   ])
 );
-
-uniqueTeams.forEach(team => {
-  const option = document.createElement('option');
-  option.value = team.value;
-  option.textContent = team.label;
-  teamFilter.appendChild(option);
-});
 
 addOptions(
   divisionFilter,
@@ -216,9 +265,10 @@ addOptions(
   games.map(game => game.field)
 );
 
-    render();
-    cleanupScheduleRequest();
-  };
+updateTeamOptions();
+
+render();
+cleanupScheduleRequest();
 
   scheduleScript.onerror = () => {
     cleanupScheduleRequest();
