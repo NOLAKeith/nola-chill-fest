@@ -1,1 +1,154 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tournament Schedule | NOLA Chill Fest</title><link rel="stylesheet" href="assets/styles.css"></head><body><header class="site-header"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-mark">⚾</span><span>NOLA Chill Fest<small>October 3–4, 2026</small></span></a><nav class="desktop-nav"><a href="index.html">Home</a><a href="register.html">Register</a><a data-whos-coming href="whos-coming.html">Who's Coming</a><a href="tournament-central.html">Tournament Central</a><a href="rules.html">Rules</a><a href="sponsors.html">Sponsors</a><a href="contact.html">Contact</a></nav><a class="nav-cta" href="register.html">Register Team</a><button class="menu-btn" aria-label="Open menu">☰</button></div><nav class="mobile-nav"><a href="index.html">Home</a><a href="register.html">Register</a><a data-whos-coming href="whos-coming.html">Who's Coming</a><a href="tournament-central.html">Tournament Central</a><a href="rules.html">Rules</a><a href="sponsors.html">Sponsors</a><a href="contact.html">Contact</a></nav></header><main><section class="page-hero"><div class="wrap"><div class="eyebrow">Times, fields and matchups</div><h1>Tournament Schedule</h1></div></section><section class="content"><div class="wrap"><div class="filters"><select class="select"><option>All divisions</option><option>7U</option><option>8U</option><option>9U</option><option>10U</option><option>11U</option><option>12U</option></select><select class="select"><option>All dates</option><option>Saturday</option><option>Sunday</option></select><select class="select"><option>All fields</option><option>Chappelle</option><option>Field 1</option><option>Field 3</option><option>Field 4</option></select></div><div class="empty"><div class="empty-icon">🗓️</div><h2>Schedule Coming Soon</h2><p>The official 2026 schedule will appear here after registration closes and divisions are finalized.</p><a class="btn" href="register.html">Register Your Team</a></div></div></section></main><footer class="site-footer"><div class="wrap"><div class="footer-grid"><div><div class="footer-title">NOLA Chill Fest</div><p class="small">Youth baseball. Great competition. A tournament weekend built for players, coaches and families.</p></div><div><div class="footer-title">Tournament</div><div class="footer-links"><a href="register.html">Register</a><a href="tournament-central.html">Tournament Central</a><a href="rules.html">Rules</a><a href="sponsors.html">Sponsors</a></div></div><div><div class="footer-title">Contact</div><div class="footer-links"><a href="tel:15043120863">Patrick: 504-312-0863</a><a href="tel:15042568937">Keith: 504-256-8937</a><a href="mailto:patrickdcresson@gmail.com">patrickdcresson@gmail.com</a><span>Kenner, Louisiana</span></div></div></div><div class="copyright">© <span data-year></span> NOLA Chill Fest. All rights reserved.</div></div></footer><script src="assets/config.js"></script><script src="assets/site.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tournament Schedule | NOLA Chill Fest</title>
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+.schedule-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:22px}
+.schedule-summary{margin:0 0 18px;color:#667085;font-weight:700}
+.schedule-list{display:grid;gap:22px}
+.schedule-day h2{margin:0 0 12px;font-size:clamp(1.25rem,4vw,1.65rem)}
+.schedule-games{display:grid;gap:12px}
+.schedule-game{padding:16px;border:1px solid rgba(148,163,184,.35);border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+.schedule-game-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+.schedule-kicker{font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#008fc7}
+.schedule-meta{font-size:.9rem;font-weight:700;color:#475467;text-align:right}
+.schedule-matchup{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+.schedule-team{font-weight:800;line-height:1.25}
+.schedule-team:last-child{text-align:right}
+.schedule-vs{font-size:.75rem;font-weight:900;color:#98a2b3;text-transform:uppercase}
+.schedule-empty{padding:32px 18px;text-align:center;border:1px dashed #cbd5e1;border-radius:14px}
+@media(max-width:720px){
+  .schedule-controls{grid-template-columns:1fr}
+  .schedule-game{padding:14px}
+  .schedule-game-top{display:block}
+  .schedule-meta{text-align:left;margin-top:5px}
+  .schedule-matchup{grid-template-columns:1fr;gap:5px}
+  .schedule-team:last-child{text-align:left}
+  .schedule-vs{font-size:.72rem}
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="index.html"><span class="brand-mark">⚾</span><span>NOLA Chill Fest<small>October 3–4, 2026</small></span></a>
+    <nav class="desktop-nav"><a href="index.html">Home</a><a href="register.html">Register</a><a data-whos-coming href="whos-coming.html">Who's Coming</a><a href="tournament-central.html">Tournament Central</a><a href="rules.html">Rules</a><a href="sponsors.html">Sponsors</a><a href="contact.html">Contact</a></nav>
+    <a class="nav-cta" href="register.html">Register Team</a>
+    <button class="menu-btn" aria-label="Open menu">☰</button>
+  </div>
+  <nav class="mobile-nav"><a href="index.html">Home</a><a href="register.html">Register</a><a data-whos-coming href="whos-coming.html">Who's Coming</a><a href="tournament-central.html">Tournament Central</a><a href="rules.html">Rules</a><a href="sponsors.html">Sponsors</a><a href="contact.html">Contact</a></nav>
+</header>
+
+<main>
+  <section class="page-hero"><div class="wrap"><div class="eyebrow">Times, fields and matchups</div><h1>Tournament Schedule</h1></div></section>
+  <section class="content">
+    <div class="wrap">
+      <div class="schedule-controls">
+        <select class="select" id="schedule-division" aria-label="Filter by division"><option value="">All divisions</option></select>
+        <select class="select" id="schedule-date" aria-label="Filter by date"><option value="">All dates</option></select>
+        <select class="select" id="schedule-field" aria-label="Filter by field"><option value="">All fields</option></select>
+      </div>
+      <p class="schedule-summary" id="schedule-summary">Loading schedule…</p>
+      <div id="schedule-results" class="schedule-list" aria-live="polite"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer"><div class="wrap"><div class="footer-grid"><div><div class="footer-title">NOLA Chill Fest</div><p class="small">Youth baseball. Great competition. A tournament weekend built for players, coaches and families.</p></div><div><div class="footer-title">Tournament</div><div class="footer-links"><a href="register.html">Register</a><a href="tournament-central.html">Tournament Central</a><a href="rules.html">Rules</a><a href="sponsors.html">Sponsors</a></div></div><div><div class="footer-title">Contact</div><div class="footer-links"><a href="tel:15043120863">Patrick: 504-312-0863</a><a href="tel:15042568937">Keith: 504-256-8937</a><a href="mailto:patrickdcresson@gmail.com">patrickdcresson@gmail.com</a><span>Kenner, Louisiana</span></div></div></div><div class="copyright">© <span data-year></span> NOLA Chill Fest. All rights reserved.</div></div></footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(() => {
+  const CONFIG = window.CHILL_FEST_CONFIG || {};
+  const endpoint = String(CONFIG.registrationEndpoint || '');
+  const results = document.getElementById('schedule-results');
+  const summary = document.getElementById('schedule-summary');
+  const divisionFilter = document.getElementById('schedule-division');
+  const dateFilter = document.getElementById('schedule-date');
+  const fieldFilter = document.getElementById('schedule-field');
+  let games = [];
+
+  const escapeHtml = (value) => String(value || '')
+    .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+    .replaceAll('"','&quot;').replaceAll("'",'&#039;');
+
+  const addOptions = (select, items, labels = {}) => {
+    [...new Set(items.filter(Boolean))].sort((a,b) => a.localeCompare(b, undefined, {numeric:true})).forEach(value => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = labels[value] || value;
+      select.appendChild(option);
+    });
+  };
+
+  const render = () => {
+    const filtered = games.filter(game =>
+      (!divisionFilter.value || game.division === divisionFilter.value) &&
+      (!dateFilter.value || game.date === dateFilter.value) &&
+      (!fieldFilter.value || game.field === fieldFilter.value)
+    );
+
+    summary.textContent = `${filtered.length} ${filtered.length === 1 ? 'game' : 'games'} shown`;
+    if (!filtered.length) {
+      results.innerHTML = '<div class="schedule-empty"><h2>No games found</h2><p>Try changing one of the filters.</p></div>';
+      return;
+    }
+
+    const grouped = filtered.reduce((acc, game) => {
+      const key = game.date;
+      (acc[key] ||= { label: game.dateLabel, games: [] }).games.push(game);
+      return acc;
+    }, {});
+
+    results.innerHTML = Object.values(grouped).map(day => `
+      <section class="schedule-day">
+        <h2>${escapeHtml(day.label)}</h2>
+        <div class="schedule-games">
+          ${day.games.map(game => `
+            <article class="schedule-game">
+              <div class="schedule-game-top">
+                <div class="schedule-kicker">${escapeHtml(game.division)} · ${escapeHtml(game.round)}</div>
+                <div class="schedule-meta">${escapeHtml(game.time)} · ${escapeHtml(game.field)}</div>
+              </div>
+              <div class="schedule-matchup">
+                <div class="schedule-team">${escapeHtml(game.away)}</div>
+                <div class="schedule-vs">vs</div>
+                <div class="schedule-team">${escapeHtml(game.home)}</div>
+              </div>
+            </article>`).join('')}
+        </div>
+      </section>`).join('');
+  };
+
+  [divisionFilter, dateFilter, fieldFilter].forEach(el => el.addEventListener('change', render));
+
+  if (!endpoint) {
+    summary.textContent = 'Schedule unavailable';
+    results.innerHTML = '<div class="schedule-empty"><h2>Schedule could not be loaded</h2><p>The schedule feed is not connected.</p></div>';
+    return;
+  }
+
+  fetch(`${endpoint}?action=schedule`)
+    .then(response => response.json())
+    .then(data => {
+      if (!data.ok || !Array.isArray(data.games)) throw new Error(data.message || 'Invalid schedule response.');
+      games = data.games;
+      const dateLabels = Object.fromEntries(games.map(g => [g.date, g.dateLabel]));
+      addOptions(divisionFilter, games.map(g => g.division));
+      addOptions(dateFilter, games.map(g => g.date), dateLabels);
+      addOptions(fieldFilter, games.map(g => g.field));
+      render();
+    })
+    .catch(error => {
+      console.error(error);
+      summary.textContent = 'Schedule unavailable';
+      results.innerHTML = '<div class="schedule-empty"><h2>Schedule could not be loaded</h2><p>Please refresh the page or check back shortly.</p></div>';
+    });
+})();
+</script>
+</body>
+</html>
