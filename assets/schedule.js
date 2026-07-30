@@ -7,6 +7,7 @@
   const divisionFilter = document.getElementById('schedule-division');
   const dateFilter = document.getElementById('schedule-date');
   const fieldFilter = document.getElementById('schedule-field');
+  const teamFilter = document.getElementById('schedule-team');
 
   let games = [];
 
@@ -32,13 +33,19 @@
 
   const render = () => {
     const filtered = games.filter(game =>
-      (!divisionFilter.value ||
-        game.division === divisionFilter.value) &&
-      (!dateFilter.value ||
-        game.date === dateFilter.value) &&
-      (!fieldFilter.value ||
-        game.field === fieldFilter.value)
-    );
+  (!divisionFilter.value ||
+    game.division === divisionFilter.value) &&
+
+  (!teamFilter.value ||
+    game.away === teamFilter.value ||
+    game.home === teamFilter.value) &&
+
+  (!dateFilter.value ||
+    game.date === dateFilter.value) &&
+
+  (!fieldFilter.value ||
+    game.field === fieldFilter.value)
+);
 
     summary.textContent =
       `${filtered.length} ${filtered.length === 1 ? 'game' : 'games'} shown`;
@@ -106,7 +113,7 @@
       .join('');
   };
 
-  [divisionFilter, dateFilter, fieldFilter].forEach(element => {
+  [divisionFilter, teamFilter, dateFilter, fieldFilter].forEach(element => {
     element.addEventListener('change', render);
   });
 
@@ -160,28 +167,38 @@
 
     games = data.games;
 
-    const dateLabels = Object.fromEntries(
-      games.map(game => [
-        game.date,
-        game.dateLabel
-      ])
-    );
+const teams = games.flatMap(game => [
+  game.away,
+  game.home
+]);
 
-    addOptions(
-      divisionFilter,
-      games.map(game => game.division)
-    );
+const dateLabels = Object.fromEntries(
+  games.map(game => [
+    game.date,
+    game.dateLabel
+  ])
+);
 
-    addOptions(
-      dateFilter,
-      games.map(game => game.date),
-      dateLabels
-    );
+addOptions(
+  teamFilter,
+  teams
+);
 
-    addOptions(
-      fieldFilter,
-      games.map(game => game.field)
-    );
+addOptions(
+  divisionFilter,
+  games.map(game => game.division)
+);
+
+addOptions(
+  dateFilter,
+  games.map(game => game.date),
+  dateLabels
+);
+
+addOptions(
+  fieldFilter,
+  games.map(game => game.field)
+);
 
     render();
     cleanupScheduleRequest();
