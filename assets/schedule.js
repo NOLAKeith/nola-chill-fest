@@ -5,9 +5,9 @@
   const results = document.getElementById('schedule-results');
   const summary = document.getElementById('schedule-summary');
   const divisionFilter = document.getElementById('schedule-division');
+  const teamFilter = document.getElementById('schedule-team');
   const dateFilter = document.getElementById('schedule-date');
   const fieldFilter = document.getElementById('schedule-field');
-  const teamFilter = document.getElementById('schedule-team');
 
   let games = [];
 
@@ -32,86 +32,87 @@
   };
 
   const updateTeamOptions = () => {
-  const selectedDivision = divisionFilter.value;
-  const previousTeam = teamFilter.value;
+    const selectedDivision = divisionFilter.value;
 
-  const relevantGames = selectedDivision
-    ? games.filter(game => game.division === selectedDivision)
-    : games;
+    const relevantGames = selectedDivision
+      ? games.filter(game => game.division === selectedDivision)
+      : games;
 
-  const teamOptions = relevantGames.flatMap(game => [
-    {
-      value: `${game.division}||${game.away}`,
-      division: game.division,
-      name: game.away
-    },
-    {
-      value: `${game.division}||${game.home}`,
-      division: game.division,
-      name: game.home
-    }
-  ]);
+    const teamOptions = relevantGames.flatMap(game => [
+      {
+        value: `${game.division}||${game.away}`,
+        division: game.division,
+        name: game.away
+      },
+      {
+        value: `${game.division}||${game.home}`,
+        division: game.division,
+        name: game.home
+      }
+    ]);
 
-  const uniqueTeams = [
-    ...new Map(
-      teamOptions.map(team => [team.value, team])
-    ).values()
-  ].sort((a, b) => {
-    const divisionCompare = a.division.localeCompare(
-      b.division,
-      undefined,
-      { numeric: true }
-    );
+    const uniqueTeams = [
+      ...new Map(
+        teamOptions
+          .filter(team => team.name)
+          .map(team => [team.value, team])
+      ).values()
+    ].sort((a, b) => {
+      const divisionSort = a.division.localeCompare(
+        b.division,
+        undefined,
+        { numeric: true }
+      );
 
-    if (divisionCompare !== 0) {
-      return divisionCompare;
-    }
+      if (divisionSort !== 0) {
+        return divisionSort;
+      }
 
-    return a.name.localeCompare(
-      b.name,
-      undefined,
-      { numeric: true }
-    );
-  });
+      return a.name.localeCompare(
+        b.name,
+        undefined,
+        { numeric: true }
+      );
+    });
 
-  teamFilter.innerHTML = '<option value="">All teams</option>';
+    teamFilter.innerHTML =
+      '<option value="">All teams</option>';
 
-  uniqueTeams.forEach(team => {
-    const option = document.createElement('option');
+    uniqueTeams.forEach(team => {
+      const option = document.createElement('option');
 
-    option.value = team.value;
+      option.value = team.value;
 
-    option.textContent = selectedDivision
-      ? team.name
-      : `${team.division} — ${team.name}`;
+      option.textContent = selectedDivision
+        ? team.name
+        : `${team.division} — ${team.name}`;
 
-    teamFilter.appendChild(option);
-  });
+      teamFilter.appendChild(option);
+    });
 
-  const previousStillExists = uniqueTeams.some(
-    team => team.value === previousTeam
-  );
+    teamFilter.value = '';
+  };
 
-  teamFilter.value = previousStillExists
-    ? previousTeam
-    : '';
-};
-  
   const render = () => {
     const filtered = games.filter(game =>
-  (!divisionFilter.value ||
-    game.division === divisionFilter.value) &&
-
-  (!teamFilter.value ||
-  `${game.division}||${game.away}` === teamFilter.value ||
-  `${game.division}||${game.home}` === teamFilter.value) &&
-
-  (!dateFilter.value ||
-    game.date === dateFilter.value) &&
-
-  (!fieldFilter.value ||
-    game.field === fieldFilter.value)
-);
+      (
+        !divisionFilter.value ||
+        game.division === divisionFilter.value
+      ) &&
+      (
+        !teamFilter.value ||
+        `${game.division}||${game.away}` === teamFilter.value ||
+        `${game.division}||${game.home}` === teamFilter.value
+      ) &&
+      (
+        !dateFilter.value ||
+        game.date === dateFilter.value
+      ) &&
+      (
+        !fieldFilter.value ||
+        game.field === fieldFilter.value
+      )
+    );
 
     summary.textContent =
       `${filtered.length} ${filtered.length === 1 ? 'game' : 'games'} shown`;
@@ -180,17 +181,17 @@
   };
 
   divisionFilter.addEventListener('change', () => {
-  updateTeamOptions();
-  render();
-});
+    updateTeamOptions();
+    render();
+  });
 
-[
-  teamFilter,
-  dateFilter,
-  fieldFilter
-].forEach(element => {
-  element.addEventListener('change', render);
-});
+  [
+    teamFilter,
+    dateFilter,
+    fieldFilter
+  ].forEach(element => {
+    element.addEventListener('change', render);
+  });
 
   const showScheduleError = () => {
     summary.textContent = 'Schedule unavailable';
@@ -242,33 +243,33 @@
 
     games = data.games;
 
-const dateLabels = Object.fromEntries(
-  games.map(game => [
-    game.date,
-    game.dateLabel
-  ])
-);
+    const dateLabels = Object.fromEntries(
+      games.map(game => [
+        game.date,
+        game.dateLabel
+      ])
+    );
 
-addOptions(
-  divisionFilter,
-  games.map(game => game.division)
-);
+    addOptions(
+      divisionFilter,
+      games.map(game => game.division)
+    );
 
-addOptions(
-  dateFilter,
-  games.map(game => game.date),
-  dateLabels
-);
+    addOptions(
+      dateFilter,
+      games.map(game => game.date),
+      dateLabels
+    );
 
-addOptions(
-  fieldFilter,
-  games.map(game => game.field)
-);
+    addOptions(
+      fieldFilter,
+      games.map(game => game.field)
+    );
 
-updateTeamOptions();
-
-render();
-cleanupScheduleRequest();
+    updateTeamOptions();
+    render();
+    cleanupScheduleRequest();
+  };
 
   scheduleScript.onerror = () => {
     cleanupScheduleRequest();
