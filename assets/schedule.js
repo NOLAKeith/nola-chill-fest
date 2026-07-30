@@ -360,9 +360,9 @@
 
                 ${matchupHtml(game)}
 
-                ${game.status === 'Final' ? `
-                  <div class="schedule-status final">Final</div>
-                ` : ''}
+                <div class="schedule-status${game.status === 'Final' ? ' final' : ''}" aria-hidden="${game.status === 'Final' ? 'false' : 'true'}">
+                  ${game.status === 'Final' ? 'Final' : '&nbsp;'}
+                </div>
               </article>
             `).join('')}
           </div>
