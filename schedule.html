@@ -8,22 +8,22 @@
 <style>
 .schedule-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
 .schedule-summary{margin:0 0 8px;color:#667085;font-weight:700}
-.schedule-list{display:grid;gap:18px}
-.schedule-day{display:grid;gap:8px}
+.schedule-list{display:grid;gap:12px}
+.schedule-day{display:grid;gap:5px}
 .schedule-day h2{margin:0;font-size:clamp(1.2rem,3vw,1.55rem)}
-.schedule-games{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.schedule-game{padding:13px 14px;border:1px solid rgba(148,163,184,.35);border-radius:14px;background:#fff;color:#101828;box-shadow:0 8px 24px rgba(15,23,42,.06)}
-.schedule-game-top{display:block;margin-bottom:7px}
+.schedule-games{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.schedule-game{display:flex;flex-direction:column;padding:10px 12px;border:1px solid rgba(148,163,184,.35);border-radius:14px;background:rgba(244,247,250,.94);color:#101828;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+.schedule-game-top{display:block;margin-bottom:4px}
 .schedule-kicker{font-size:.72rem;font-weight:800;letter-spacing:.055em;text-transform:uppercase;color:#008fc7;line-height:1.2}
-.schedule-meta{font-size:.82rem;font-weight:700;color:#475467;text-align:left;margin-top:3px;line-height:1.25}
+.schedule-meta{font-size:.8rem;font-weight:700;color:#475467;text-align:left;margin-top:1px;line-height:1.18}
 .schedule-matchup{display:grid;gap:0}
-.schedule-team-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:7px 0;border-top:1px solid #eef2f6}
+.schedule-team-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:5px 0;border-top:1px solid rgba(148,163,184,.22)}
 .schedule-team-row:first-child{border-top:0}
-.schedule-team{font-size:.92rem;font-weight:800;line-height:1.2;color:#101828}
-.schedule-score{font-size:1.18rem;min-width:2ch;text-align:right;color:#101828}
+.schedule-team{font-size:.9rem;font-weight:800;line-height:1.16;color:#101828}
+.schedule-score{font-size:1.08rem;min-width:2ch;text-align:right;color:#101828}
 .schedule-score-winner{color:#101828}
 .schedule-score-loser{color:#98a2b3}
-.schedule-status{margin-top:6px;font-size:.68rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+.schedule-status{min-height:13px;margin-top:3px;font-size:.66rem;font-weight:900;line-height:1;letter-spacing:.06em;text-transform:uppercase;color:transparent}
 .schedule-status.final{color:#087443}
 .schedule-empty{padding:32px 18px;text-align:center;border:1px dashed #cbd5e1;border-radius:14px}
 @media(max-width:980px){
@@ -32,14 +32,14 @@
 @media(max-width:720px){
   .schedule-controls{grid-template-columns:1fr;margin-bottom:12px}
   .schedule-summary{margin-bottom:5px}
-  .schedule-list{gap:14px}
-  .schedule-day{gap:6px}
-  .schedule-games{grid-template-columns:1fr;gap:10px}
-  .schedule-game{padding:12px 13px}
+  .schedule-list{gap:10px}
+  .schedule-day{gap:4px}
+  .schedule-games{grid-template-columns:1fr;gap:8px}
+  .schedule-game{padding:9px 11px}
   .schedule-kicker{font-size:.7rem}
-  .schedule-meta{font-size:.79rem}
-  .schedule-team-row{padding:6px 0}
-  .schedule-team{font-size:.89rem}
+  .schedule-meta{font-size:.77rem}
+  .schedule-team-row{padding:4px 0}
+  .schedule-team{font-size:.87rem}
 }
 </style>
 </head>
@@ -85,7 +85,7 @@
 
 <script src="assets/config.js"></script>
 <script src="assets/site.js"></script>
-<script src="assets/schedule.js?v=20260730-compact-grid"></script>
+<script src="assets/schedule.js?v=20260730-tight-cards"></script>
 
 </body>
 </html>
