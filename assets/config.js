@@ -1,6 +1,7 @@
 window.CHILL_FEST_CONFIG = {
   registrationEndpoint: "https://script.google.com/macros/s/AKfycbyZcGmlGcKcx62Ez0e14sB_oTgtiX31YRF4p8OO10DgVTjgvKXh2XpPx4hxPwxrkv_N/exec",
   showWhosComing: true,
+  showSchedule: false,
   showTournamentPages: true,
   showSponsors: true,
   tournament: {
