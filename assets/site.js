@@ -93,3 +93,139 @@ if (updates && Array.isArray(CONFIG.updates)) {
   updates.innerHTML = CONFIG.updates.map(item => `<article class="update-item"><strong>${item.title}</strong><span>${item.text}</span></article>`).join('');
 }
 document.querySelectorAll('[data-sponsors]').forEach(el => { if (CONFIG.showSponsors === false) el.remove(); });
+
+const approvedTeamsContainer =
+  document.getElementById('approved-teams');
+
+const approvedTeamsStatus =
+  document.getElementById('approved-teams-status');
+
+if (approvedTeamsContainer && approvedTeamsStatus) {
+  const endpoint = String(CONFIG.registrationEndpoint || '');
+
+  const escapeHtml = (value) => {
+    return String(value || '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  };
+
+  const renderApprovedTeams = (teams) => {
+    if (!Array.isArray(teams) || teams.length === 0) {
+      approvedTeamsStatus.innerHTML = `
+        <div class="empty-icon">⚾</div>
+        <h2>Teams Will Appear Here</h2>
+        <p>No approved teams have been published yet.</p>
+        <a class="btn" href="register.html">Register Your Team</a>
+      `;
+
+      approvedTeamsStatus.hidden = false;
+      approvedTeamsContainer.hidden = true;
+      return;
+    }
+
+    const grouped = teams.reduce((groups, team) => {
+      const division = team.division || 'Other';
+
+      if (!groups[division]) {
+        groups[division] = [];
+      }
+
+      groups[division].push(team);
+      return groups;
+    }, {});
+
+    approvedTeamsContainer.innerHTML =
+      Object.entries(grouped)
+        .map(([division, divisionTeams]) => {
+          const cards = divisionTeams
+            .map((team) => {
+              const location = [
+                team.organization,
+                team.teamCity
+              ]
+                .filter(Boolean)
+                .join(' · ');
+
+              return `
+                <article class="card team-card">
+                  <div class="eyebrow">
+                    ${escapeHtml(division)}
+                  </div>
+
+                  <h3>
+                    ${escapeHtml(team.teamName)}
+                  </h3>
+
+                  ${
+                    location
+                      ? `<p>${escapeHtml(location)}</p>`
+                      : ''
+                  }
+                </article>
+              `;
+            })
+            .join('');
+
+          return `
+            <section class="division-section">
+              <div class="section-head">
+                <div>
+                  <div class="eyebrow">
+                    Tournament Field
+                  </div>
+
+                  <h2>
+                    ${escapeHtml(division)} Division
+                  </h2>
+                </div>
+
+                <div class="team-count">
+                  ${divisionTeams.length}
+                  ${divisionTeams.length === 1 ? 'Team' : 'Teams'}
+                </div>
+              </div>
+
+              <div class="team-grid">
+                ${cards}
+              </div>
+            </section>
+          `;
+        })
+        .join('');
+
+    approvedTeamsStatus.hidden = true;
+    approvedTeamsContainer.hidden = false;
+  };
+
+  if (!endpoint) {
+    approvedTeamsStatus.innerHTML = `
+      <div class="empty-icon">⚠️</div>
+      <h2>Teams Could Not Be Loaded</h2>
+      <p>The approved-team feed is not connected.</p>
+    `;
+  } else {
+    fetch(`${endpoint}?action=approved-teams`)
+      .then((response) => response.json())
+      .then((result) => {
+        if (!result.ok) {
+          throw new Error(
+            result.message || 'Unable to load teams.'
+          );
+        }
+
+        renderApprovedTeams(result.teams);
+      })
+      .catch((error) => {
+        console.error(error);
+
+        approvedTeamsStatus.innerHTML = `
+          <div class="empty-icon">⚠️</div>
+          <h2>Teams Could Not Be Loaded</h2>
+          <p>Please refresh the page or check back shortly.</p>
+        `;
+      });
+  }
+}
