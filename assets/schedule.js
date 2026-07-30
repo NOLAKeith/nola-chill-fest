@@ -1,38 +1,116 @@
 (() => {
+  'use strict';
+
+  // ------------------------------------------------------------
+  // Configuration
+  // ------------------------------------------------------------
+
   const CONFIG = window.CHILL_FEST_CONFIG || {};
   const endpoint = String(CONFIG.registrationEndpoint || '');
-
   const showSchedule = CONFIG.showSchedule === true;
+
+  // ------------------------------------------------------------
+  // Page elements
+  // ------------------------------------------------------------
+
   const controls = document.getElementById('schedule-controls');
-  
   const results = document.getElementById('schedule-results');
   const summary = document.getElementById('schedule-summary');
+
   const divisionFilter = document.getElementById('schedule-division');
   const teamFilter = document.getElementById('schedule-team');
   const dateFilter = document.getElementById('schedule-date');
   const fieldFilter = document.getElementById('schedule-field');
 
+  const requiredElements = [
+    results,
+    summary,
+    divisionFilter,
+    teamFilter,
+    dateFilter,
+    fieldFilter
+  ];
+
+  if (requiredElements.some(element => !element)) {
+    console.error('NOLA Chill Fest schedule: required page elements are missing.');
+    return;
+  }
+
   let games = [];
 
-  const escapeHtml = value => String(value || '')
+  // ------------------------------------------------------------
+  // General helpers
+  // ------------------------------------------------------------
+
+  const escapeHtml = value => String(value ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 
-  const addOptions = (select, items, labels = {}) => {
-    [...new Set(items.filter(Boolean))]
-      .sort((a, b) =>
-        a.localeCompare(b, undefined, { numeric: true })
-      )
-      .forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = labels[value] || value;
-        select.appendChild(option);
-      });
+  const showControls = () => {
+    if (controls) {
+      controls.style.display = '';
+    }
   };
+
+  const hideControls = () => {
+    if (controls) {
+      controls.style.display = 'none';
+    }
+  };
+
+  const addOptions = (select, items, labels = {}) => {
+    const uniqueItems = [...new Set(items.filter(Boolean))]
+      .sort((a, b) =>
+        String(a).localeCompare(String(b), undefined, { numeric: true })
+      );
+
+    uniqueItems.forEach(value => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = labels[value] || value;
+      select.appendChild(option);
+    });
+  };
+
+  // ------------------------------------------------------------
+  // Page states
+  // ------------------------------------------------------------
+
+  const showComingSoon = () => {
+    hideControls();
+    summary.textContent = '';
+
+    results.innerHTML = `
+      <div class="schedule-empty schedule-coming-soon">
+        <div class="schedule-empty-icon">ðŸ—“ï¸</div>
+        <h2>Schedule Coming Soon</h2>
+        <p>
+          The official 2026 schedule will appear here after registration closes
+          and divisions are finalized.
+        </p>
+        <a class="btn" href="register.html">Register Your Team</a>
+      </div>
+    `;
+  };
+
+  const showScheduleError = () => {
+    hideControls();
+    summary.textContent = 'Schedule unavailable';
+
+    results.innerHTML = `
+      <div class="schedule-empty">
+        <h2>Schedule could not be loaded</h2>
+        <p>Please refresh the page or check back shortly.</p>
+      </div>
+    `;
+  };
+
+  // ------------------------------------------------------------
+  // Filters
+  // ------------------------------------------------------------
 
   const updateTeamOptions = () => {
     const selectedDivision = divisionFilter.value;
@@ -61,34 +139,27 @@
           .map(team => [team.value, team])
       ).values()
     ].sort((a, b) => {
-      const divisionSort = a.division.localeCompare(
-        b.division,
+      const divisionSort = String(a.division).localeCompare(
+        String(b.division),
         undefined,
         { numeric: true }
       );
 
-      if (divisionSort !== 0) {
-        return divisionSort;
-      }
-
-      return a.name.localeCompare(
-        b.name,
+      return divisionSort || String(a.name).localeCompare(
+        String(b.name),
         undefined,
         { numeric: true }
       );
     });
 
-    teamFilter.innerHTML =
-      '<option value="">All teams</option>';
+    teamFilter.innerHTML = '<option value="">All teams</option>';
 
     uniqueTeams.forEach(team => {
       const option = document.createElement('option');
-
       option.value = team.value;
-
       option.textContent = selectedDivision
         ? team.name
-        : `${team.division} — ${team.name}`;
+        : `${team.division} â€” ${team.name}`;
 
       teamFilter.appendChild(option);
     });
@@ -96,8 +167,8 @@
     teamFilter.value = '';
   };
 
-  const render = () => {
-    const filtered = games.filter(game =>
+  const getFilteredGames = () => {
+    return games.filter(game =>
       (
         !divisionFilter.value ||
         game.division === divisionFilter.value
@@ -116,6 +187,14 @@
         game.field === fieldFilter.value
       )
     );
+  };
+
+  // ------------------------------------------------------------
+  // Schedule rendering
+  // ------------------------------------------------------------
+
+  const render = () => {
+    const filtered = getFilteredGames();
 
     summary.textContent =
       `${filtered.length} ${filtered.length === 1 ? 'game' : 'games'} shown`;
@@ -130,21 +209,21 @@
       return;
     }
 
-    const grouped = filtered.reduce((acc, game) => {
+    const groupedByDate = filtered.reduce((groups, game) => {
       const key = game.date;
 
-      if (!acc[key]) {
-        acc[key] = {
+      if (!groups[key]) {
+        groups[key] = {
           label: game.dateLabel,
           games: []
         };
       }
 
-      acc[key].games.push(game);
-      return acc;
+      groups[key].games.push(game);
+      return groups;
     }, {});
 
-    results.innerHTML = Object.values(grouped)
+    results.innerHTML = Object.values(groupedByDate)
       .map(day => `
         <section class="schedule-day">
           <h2>${escapeHtml(day.label)}</h2>
@@ -154,12 +233,12 @@
               <article class="schedule-game">
                 <div class="schedule-game-top">
                   <div class="schedule-kicker">
-                    ${escapeHtml(game.division)} ·
+                    ${escapeHtml(game.division)} Â·
                     ${escapeHtml(game.round)}
                   </div>
 
                   <div class="schedule-meta">
-                    ${escapeHtml(game.time)} ·
+                    ${escapeHtml(game.time)} Â·
                     ${escapeHtml(game.field)}
                   </div>
                 </div>
@@ -188,60 +267,37 @@
     render();
   });
 
-  [
-    teamFilter,
-    dateFilter,
-    fieldFilter
-  ].forEach(element => {
-    element.addEventListener('change', render);
+  [teamFilter, dateFilter, fieldFilter].forEach(filter => {
+    filter.addEventListener('change', render);
   });
 
-  const showScheduleError = () => {
-    summary.textContent = 'Schedule unavailable';
+  // ------------------------------------------------------------
+  // Feature flag
+  // ------------------------------------------------------------
 
-    results.innerHTML = `
-      <div class="schedule-empty">
-        <h2>Schedule could not be loaded</h2>
-        <p>Please refresh the page or check back shortly.</p>
-      </div>
-    `;
-  };
-
-const showComingSoon = () => {
-  controls.hidden = true;
-  summary.textContent = '';
-
-  results.innerHTML = `
-    <div class="schedule-empty schedule-coming-soon">
-      <div class="schedule-empty-icon">🗓️</div>
-      <h2>Schedule Coming Soon</h2>
-      <p>
-        The official 2026 schedule will appear here after registration closes
-        and divisions are finalized.
-      </p>
-      <a class="btn" href="register.html">Register Your Team</a>
-    </div>
-  `;
-};
-  
   if (!showSchedule) {
-  showComingSoon();
-  return;
-}
+    showComingSoon();
+    return;
+  }
 
-if (!endpoint) {
-  showScheduleError();
-  return;
-}
+  if (!endpoint) {
+    showScheduleError();
+    return;
+  }
 
-  const callbackName =
-    `loadChillFestSchedule_${Date.now()}`;
+  // ------------------------------------------------------------
+  // JSONP schedule request
+  // ------------------------------------------------------------
 
-  const scheduleScript =
-    document.createElement('script');
+  const callbackName = `loadChillFestSchedule_${Date.now()}`;
+  const scheduleScript = document.createElement('script');
+
+  let timeoutId;
 
   const cleanupScheduleRequest = () => {
-    clearTimeout(timeout);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
 
     if (scheduleScript.parentNode) {
       scheduleScript.remove();
@@ -254,7 +310,7 @@ if (!endpoint) {
     }
   };
 
-  const timeout = setTimeout(() => {
+  timeoutId = setTimeout(() => {
     cleanupScheduleRequest();
     showScheduleError();
   }, 12000);
@@ -269,16 +325,13 @@ if (!endpoint) {
     games = data.games;
 
     if (!games.length) {
-      showComingSoon();
       cleanupScheduleRequest();
+      showComingSoon();
       return;
     }
 
     const dateLabels = Object.fromEntries(
-      games.map(game => [
-        game.date,
-        game.dateLabel
-      ])
+      games.map(game => [game.date, game.dateLabel])
     );
 
     addOptions(
@@ -298,7 +351,7 @@ if (!endpoint) {
     );
 
     updateTeamOptions();
-    controls.hidden = false;
+    showControls();
     render();
     cleanupScheduleRequest();
   };
