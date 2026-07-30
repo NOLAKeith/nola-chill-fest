@@ -3,4 +3,4 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   X-Frame-Options: SAMEORIGIN
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; font-src 'self' https://fonts.gstatic.com data:; frame-ancestors 'none';
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://script.google.com https://script.googleusercontent.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://cloudflareinsights.com; font-src 'self' https://fonts.gstatic.com data:; frame-src 'self' https://www.google.com https://maps.google.com; frame-ancestors 'none';
