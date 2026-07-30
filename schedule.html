@@ -168,9 +168,8 @@ const timeout = setTimeout(() => {
 }, 12000);
 
 window[callbackName] = data => {
-  cleanupScheduleRequest();
-
   if (!data || !data.ok || !Array.isArray(data.games)) {
+    cleanupScheduleRequest();
     showScheduleError();
     return;
   }
@@ -198,6 +197,7 @@ window[callbackName] = data => {
   );
 
   render();
+  cleanupScheduleRequest();
 };
 
 scheduleScript.onerror = () => {
