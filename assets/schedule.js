@@ -37,8 +37,8 @@
     game.division === divisionFilter.value) &&
 
   (!teamFilter.value ||
-    game.away === teamFilter.value ||
-    game.home === teamFilter.value) &&
+  `${game.division}||${game.away}` === teamFilter.value ||
+  `${game.division}||${game.home}` === teamFilter.value) &&
 
   (!dateFilter.value ||
     game.date === dateFilter.value) &&
@@ -167,11 +167,25 @@
 
     games = data.games;
 
-const teams = games.flatMap(game => [
-  game.away,
-  game.home
+const teamOptions = games.flatMap(game => [
+  {
+    value: `${game.division}||${game.away}`,
+    label: `${game.division} — ${game.away}`
+  },
+  {
+    value: `${game.division}||${game.home}`,
+    label: `${game.division} — ${game.home}`
+  }
 ]);
 
+const uniqueTeams = [
+  ...new Map(
+    teamOptions.map(team => [team.value, team])
+  ).values()
+].sort((a, b) =>
+  a.label.localeCompare(b.label, undefined, { numeric: true })
+);
+    
 const dateLabels = Object.fromEntries(
   games.map(game => [
     game.date,
@@ -179,10 +193,12 @@ const dateLabels = Object.fromEntries(
   ])
 );
 
-addOptions(
-  teamFilter,
-  teams
-);
+uniqueTeams.forEach(team => {
+  const option = document.createElement('option');
+  option.value = team.value;
+  option.textContent = team.label;
+  teamFilter.appendChild(option);
+});
 
 addOptions(
   divisionFilter,
