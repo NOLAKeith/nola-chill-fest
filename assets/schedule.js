@@ -51,6 +51,21 @@
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 
+
+  const friendlyDate = (dateValue, fallbackLabel) => {
+    const parsed = new Date(`${dateValue}T12:00:00`);
+
+    if (Number.isNaN(parsed.getTime())) {
+      return fallbackLabel || dateValue;
+    }
+
+    return new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric'
+    }).format(parsed);
+  };
+
   const showControls = () => {
     if (controls) {
       controls.style.display = '';
@@ -326,7 +341,7 @@
     results.innerHTML = Object.values(groupedByDate)
       .map(day => `
         <section class="schedule-day">
-          <h2>${escapeHtml(day.label)}</h2>
+          <h2>${escapeHtml(friendlyDate(day.games[0]?.date, day.label))}</h2>
 
           <div class="schedule-games">
             ${day.games.map(game => `
@@ -345,9 +360,9 @@
 
                 ${matchupHtml(game)}
 
-                <div class="schedule-status ${game.status === 'Final' ? 'final' : ''}">
-                  ${escapeHtml(game.status)}
-                </div>
+                ${game.status === 'Final' ? `
+                  <div class="schedule-status final">Final</div>
+                ` : ''}
               </article>
             `).join('')}
           </div>
