@@ -268,6 +268,12 @@ if (!endpoint) {
 
     games = data.games;
 
+    if (!games.length) {
+      showComingSoon();
+      cleanupScheduleRequest();
+      return;
+    }
+
     const dateLabels = Object.fromEntries(
       games.map(game => [
         game.date,
@@ -292,6 +298,7 @@ if (!endpoint) {
     );
 
     updateTeamOptions();
+    controls.hidden = false;
     render();
     cleanupScheduleRequest();
   };
