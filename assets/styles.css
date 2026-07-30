@@ -387,7 +387,7 @@ section {
 }
 .venue-art {
   min-height: 470px;
-  background: linear-gradient(0deg, rgba(4, 13, 25, .5), rgba(4, 13, 25, .05)), url('chill-fest-flyer.png');
+  background: linear-gradient(0deg, rgba(4, 13, 25, .5), rgba(4, 13, 25, .05)), url('bg3.png');
   background-size: cover;
   background-position: 40% 60%
 }
@@ -463,7 +463,7 @@ section {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(3, 9, 19, .94), rgba(3, 9, 19, .32)), url('chill-fest-flyer.png');
+  background: linear-gradient(90deg, rgba(3, 9, 19, .94), rgba(3, 9, 19, .32)), url('bg3.png');
   background-size: cover;
   background-position: center 45%
 }
@@ -688,7 +688,7 @@ th {
     min-height: 650px
   }
   .hero:before {
-    background-image: linear-gradient(0deg, #030913 0%, rgba(3, 9, 19, .33) 65%), linear-gradient(90deg, rgba(3, 9, 19, .84), rgba(3, 9, 19, .08)), url('chill-fest-flyer.png');
+    background-image: linear-gradient(0deg, #030913 0%, rgba(3, 9, 19, .33) 65%), linear-gradient(90deg, rgba(3, 9, 19, .84), rgba(3, 9, 19, .08)), url('bg2');
     background-position: center, center, 58% 32%
   }
   .hero-inner {
