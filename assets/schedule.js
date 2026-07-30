@@ -247,16 +247,46 @@
   };
 
   const scoreClass = (game, side) => {
-    if (game.status !== 'Final') return '';
+    if (game.status !== 'Final') return 'schedule-score';
 
     const awayScore = Number(game.awayScore);
     const homeScore = Number(game.homeScore);
+
     if (!Number.isFinite(awayScore) || !Number.isFinite(homeScore) || awayScore === homeScore) {
       return 'schedule-score';
     }
 
-    const isWinner = side === 'away' ? awayScore > homeScore : homeScore > awayScore;
-    return `schedule-score ${isWinner ? 'schedule-score-winner' : 'schedule-score-loser'}`;
+    const isWinner = side === 'away'
+      ? awayScore > homeScore
+      : homeScore > awayScore;
+
+    return isWinner
+      ? 'schedule-score schedule-score-winner'
+      : 'schedule-score schedule-score-loser';
+  };
+
+  const matchupHtml = game => {
+    const isFinal = game.status === 'Final';
+    const awayScore = isFinal && game.awayScore !== null
+      ? escapeHtml(game.awayScore)
+      : '';
+    const homeScore = isFinal && game.homeScore !== null
+      ? escapeHtml(game.homeScore)
+      : '';
+
+    return `
+      <div class="schedule-matchup ${isFinal ? 'is-final' : ''}">
+        <div class="schedule-team-row">
+          <span class="schedule-team">${escapeHtml(game.away)}</span>
+          ${isFinal ? `<strong class="${scoreClass(game, 'away')}">${awayScore}</strong>` : ''}
+        </div>
+
+        <div class="schedule-team-row">
+          <span class="schedule-team">${escapeHtml(game.home)}</span>
+          ${isFinal ? `<strong class="${scoreClass(game, 'home')}">${homeScore}</strong>` : ''}
+        </div>
+      </div>
+    `;
   };
 
   // ------------------------------------------------------------
@@ -313,18 +343,10 @@
                   </div>
                 </div>
 
-                <div class="schedule-matchup">
-                  <div class="schedule-team-row">
-                    <span class="schedule-team-name">${escapeHtml(game.away)}</span>
-                    ${game.status === 'Final' ? `<strong class="${scoreClass(game, 'away')}">${escapeHtml(game.awayScore)}</strong>` : ''}
-                  </div>
+                ${matchupHtml(game)}
 
-                  <div class="schedule-team-row">
-                    <span class="schedule-team-name">${escapeHtml(game.home)}</span>
-                    ${game.status === 'Final' ? `<strong class="${scoreClass(game, 'home')}">${escapeHtml(game.homeScore)}</strong>` : ''}
-                  </div>
-
-                  <div class="schedule-game-status">${game.status === 'Final' ? 'Final' : 'vs'}</div>
+                <div class="schedule-status ${game.status === 'Final' ? 'final' : ''}">
+                  ${escapeHtml(game.status)}
                 </div>
               </article>
             `).join('')}
