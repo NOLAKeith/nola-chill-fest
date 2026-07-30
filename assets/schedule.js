@@ -1,17 +1,9 @@
 (() => {
   'use strict';
 
-  // ------------------------------------------------------------
-  // Configuration
-  // ------------------------------------------------------------
-
   const CONFIG = window.CHILL_FEST_CONFIG || {};
   const endpoint = String(CONFIG.registrationEndpoint || '');
   const showSchedule = CONFIG.showSchedule === true;
-
-  // ------------------------------------------------------------
-  // Page elements
-  // ------------------------------------------------------------
 
   const controls = document.getElementById('schedule-controls');
   const results = document.getElementById('schedule-results');
@@ -38,10 +30,6 @@
 
   let games = [];
 
-  // ------------------------------------------------------------
-  // General helpers
-  // ------------------------------------------------------------
-
   const escapeHtml = value => String(value ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
@@ -51,15 +39,18 @@
 
   const showControls = () => {
     if (controls) {
-      controls.style.display = '';
+      controls.style.setProperty('display', 'grid', 'important');
     }
   };
 
   const hideControls = () => {
     if (controls) {
-      controls.style.display = 'none';
+      controls.style.setProperty('display', 'none', 'important');
     }
   };
+
+  // Keep filters hidden until valid games have loaded.
+  hideControls();
 
   const addOptions = (select, items, labels = {}) => {
     const uniqueItems = [...new Set(items.filter(Boolean))]
@@ -74,10 +65,6 @@
       select.appendChild(option);
     });
   };
-
-  // ------------------------------------------------------------
-  // Page states
-  // ------------------------------------------------------------
 
   const showComingSoon = () => {
     hideControls();
@@ -107,10 +94,6 @@
       </div>
     `;
   };
-
-  // ------------------------------------------------------------
-  // Filters
-  // ------------------------------------------------------------
 
   const updateTeamOptions = () => {
     const selectedDivision = divisionFilter.value;
@@ -167,31 +150,25 @@
     teamFilter.value = '';
   };
 
-  const getFilteredGames = () => {
-    return games.filter(game =>
-      (
-        !divisionFilter.value ||
-        game.division === divisionFilter.value
-      ) &&
-      (
-        !teamFilter.value ||
-        `${game.division}||${game.away}` === teamFilter.value ||
-        `${game.division}||${game.home}` === teamFilter.value
-      ) &&
-      (
-        !dateFilter.value ||
-        game.date === dateFilter.value
-      ) &&
-      (
-        !fieldFilter.value ||
-        game.field === fieldFilter.value
-      )
-    );
-  };
-
-  // ------------------------------------------------------------
-  // Schedule rendering
-  // ------------------------------------------------------------
+  const getFilteredGames = () => games.filter(game =>
+    (
+      !divisionFilter.value ||
+      game.division === divisionFilter.value
+    ) &&
+    (
+      !teamFilter.value ||
+      `${game.division}||${game.away}` === teamFilter.value ||
+      `${game.division}||${game.home}` === teamFilter.value
+    ) &&
+    (
+      !dateFilter.value ||
+      game.date === dateFilter.value
+    ) &&
+    (
+      !fieldFilter.value ||
+      game.field === fieldFilter.value
+    )
+  );
 
   const render = () => {
     const filtered = getFilteredGames();
@@ -271,10 +248,6 @@
     filter.addEventListener('change', render);
   });
 
-  // ------------------------------------------------------------
-  // Feature flag
-  // ------------------------------------------------------------
-
   if (!showSchedule) {
     showComingSoon();
     return;
@@ -285,13 +258,8 @@
     return;
   }
 
-  // ------------------------------------------------------------
-  // JSONP schedule request
-  // ------------------------------------------------------------
-
   const callbackName = `loadChillFestSchedule_${Date.now()}`;
   const scheduleScript = document.createElement('script');
-
   let timeoutId;
 
   const cleanupScheduleRequest = () => {
