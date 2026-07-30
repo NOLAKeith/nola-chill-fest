@@ -133,14 +133,12 @@
   }
 
   const controller = new AbortController();
-const timeout = setTimeout(() => controller.abort(), 10000);
-
-const callbackName =
+  const callbackName =
   'loadChillFestSchedule_' + Date.now();
 
-const timeout = setTimeout(() => {
-  cleanupScheduleRequest();
+const scheduleScript = document.createElement('script');
 
+const showScheduleError = () => {
   summary.textContent = 'Schedule unavailable';
   results.innerHTML = `
     <div class="schedule-empty">
@@ -148,9 +146,7 @@ const timeout = setTimeout(() => {
       <p>Please refresh the page or check back shortly.</p>
     </div>
   `;
-}, 12000);
-
-const scheduleScript = document.createElement('script');
+};
 
 const cleanupScheduleRequest = () => {
   clearTimeout(timeout);
@@ -166,17 +162,16 @@ const cleanupScheduleRequest = () => {
   }
 };
 
+const timeout = setTimeout(() => {
+  cleanupScheduleRequest();
+  showScheduleError();
+}, 12000);
+
 window[callbackName] = data => {
   cleanupScheduleRequest();
 
   if (!data || !data.ok || !Array.isArray(data.games)) {
-    summary.textContent = 'Schedule unavailable';
-    results.innerHTML = `
-      <div class="schedule-empty">
-        <h2>Schedule could not be loaded</h2>
-        <p>Please refresh the page or check back shortly.</p>
-      </div>
-    `;
+    showScheduleError();
     return;
   }
 
@@ -207,14 +202,7 @@ window[callbackName] = data => {
 
 scheduleScript.onerror = () => {
   cleanupScheduleRequest();
-
-  summary.textContent = 'Schedule unavailable';
-  results.innerHTML = `
-    <div class="schedule-empty">
-      <h2>Schedule could not be loaded</h2>
-      <p>Please refresh the page or check back shortly.</p>
-    </div>
-  `;
+  showScheduleError();
 };
 
 scheduleScript.src =
@@ -223,6 +211,8 @@ scheduleScript.src =
   `&_=${Date.now()}`;
 
 document.head.appendChild(scheduleScript);
+
+})();
 </script>
 </body>
 </html>
