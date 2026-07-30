@@ -132,23 +132,51 @@
     return;
   }
 
-  fetch(`${endpoint}?action=schedule`)
-    .then(response => response.json())
-    .then(data => {
-      if (!data.ok || !Array.isArray(data.games)) throw new Error(data.message || 'Invalid schedule response.');
-      games = data.games;
-      const dateLabels = Object.fromEntries(games.map(g => [g.date, g.dateLabel]));
-      addOptions(divisionFilter, games.map(g => g.division));
-      addOptions(dateFilter, games.map(g => g.date), dateLabels);
-      addOptions(fieldFilter, games.map(g => g.field));
-      render();
-    })
-    .catch(error => {
-      console.error(error);
-      summary.textContent = 'Schedule unavailable';
-      results.innerHTML = '<div class="schedule-empty"><h2>Schedule could not be loaded</h2><p>Please refresh the page or check back shortly.</p></div>';
-    });
-})();
+  const controller = new AbortController();
+const timeout = setTimeout(() => controller.abort(), 10000);
+
+fetch(`${endpoint}?action=schedule&_=${Date.now()}`, {
+  signal: controller.signal,
+  cache: 'no-store'
+})
+  .then(response => {
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      throw new Error(`Schedule request failed: ${response.status}`);
+    }
+
+    return response.json();
+  })
+  .then(data => {
+    if (!data.ok || !Array.isArray(data.games)) {
+      throw new Error(data.message || 'Invalid schedule response.');
+    }
+
+    games = data.games;
+
+    const dateLabels = Object.fromEntries(
+      games.map(game => [game.date, game.dateLabel])
+    );
+
+    addOptions(divisionFilter, games.map(game => game.division));
+    addOptions(dateFilter, games.map(game => game.date), dateLabels);
+    addOptions(fieldFilter, games.map(game => game.field));
+
+    render();
+  })
+  .catch(error => {
+    clearTimeout(timeout);
+    console.error('Schedule load error:', error);
+
+    summary.textContent = 'Schedule unavailable';
+    results.innerHTML = `
+      <div class="schedule-empty">
+        <h2>Schedule could not be loaded</h2>
+        <p>Please refresh the page or check back shortly.</p>
+      </div>
+    `;
+  });
 </script>
 </body>
 </html>
