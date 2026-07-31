@@ -367,7 +367,7 @@ section {
   bottom: -45px
 }
 .division {
-  font: 900 66px 'Barlow Condensed';
+  font: 900 50px 'Barlow Condensed';
   color: var(--cyan);
   line-height: 1
 }
