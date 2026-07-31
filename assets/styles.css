@@ -1584,19 +1584,17 @@ th {
 }
 
 .bracket-round-header {
-  position: sticky;
-  top: 76px;
+  position: relative;
   z-index: 3;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 30px;
   padding: 13px 14px;
   border: 1px solid var(--line);
   border-radius: 13px;
   background: rgba(3, 9, 19, .94);
-  backdrop-filter: blur(12px);
 }
 
 .bracket-round-header span {
@@ -1614,11 +1612,20 @@ th {
 
 .bracket-round-games {
   display: grid;
-  align-content: space-around;
+  align-content: space-between;
   gap: 18px;
   min-height: 620px;
 }
+/* Semifinals sit between each pair of quarterfinal games */
+.bracket-round-2 {
+  padding-block: 78px;
+}
 
+/* Championship sits vertically between the semifinals */
+.bracket-round-3 {
+  display: flex;
+  align-items: center;
+}
 .bracket-game {
   position: relative;
   overflow: visible;
@@ -1713,10 +1720,6 @@ th {
 
   .bracket-toolbar-actions .btn {
     width: auto;
-  }
-
-  .bracket-round-header {
-    top: 66px;
   }
 }
 
