@@ -328,6 +328,10 @@ section {
   color: var(--muted);
   margin: 0
 }
+.team-grid {
+  display: grid;
+  gap: 20px;
+}
 .light-section {
   background: #ecf8ff;
   color: #06111e;
