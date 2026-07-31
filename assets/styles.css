@@ -161,7 +161,7 @@ img {
   inset: 0;
   background-image: linear-gradient(90deg, rgba(2, 8, 18, .93) 0%, rgba(2, 8, 18, .58) 48%, rgba(2, 8, 18, .22) 72%), linear-gradient(0deg, #030913 0%, transparent 45%), url('bg1.png');
   background-size: cover, cover, cover;
-  background-position: center, center, 72% 38%;
+  background-position: center, center, 92% 38%;
   filter: saturate(1.05)
 }
 .hero:after {
