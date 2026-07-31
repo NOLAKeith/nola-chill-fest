@@ -963,6 +963,11 @@ th {
     size: landscape;
     margin: .35in;
   }
+  .bracket-team.is-winner .bracket-team-name,
+.bracket-team.is-winner .bracket-score,
+.bracket-team.is-winner .bracket-seed {
+  color: #000 !important;
+}
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
