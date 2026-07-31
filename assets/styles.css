@@ -501,7 +501,7 @@ section {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(3, 9, 19, .94), rgba(3, 9, 19, .32)), url('bg2.png');
+  background: linear-gradient(90deg, rgba(3, 9, 19, .94), rgba(3, 9, 19, .32)), url('bg1.png');
   background-size: cover;
   background-position: center 45%
 }
@@ -726,7 +726,7 @@ th {
     min-height: 650px
   }
   .hero:before {
-    background-image: linear-gradient(0deg, #030913 0%, rgba(3, 9, 19, .33) 65%), linear-gradient(90deg, rgba(3, 9, 19, .84), rgba(3, 9, 19, .08)), url('bg2.png');
+    background-image: linear-gradient(0deg, #030913 0%, rgba(3, 9, 19, .33) 65%), linear-gradient(90deg, rgba(3, 9, 19, .84), rgba(3, 9, 19, .08)), url('bg1.png');
     background-position: center, center, 80% center
   }
   .hero-inner {
