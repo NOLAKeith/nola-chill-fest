@@ -1067,7 +1067,7 @@ th {
   min-height: 500px;
   border: 0;
 }
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   .venue-map {
     min-height: 340px;
     border-radius: 22px 22px 0 0;
@@ -1076,9 +1076,9 @@ th {
     min-height: 340px;
   }
 }
-.venue-contact-map {
+.venue-contact:not(.venue-contact-map) {
   display: grid;
-  grid-template-columns: minmax(280px, 0.8fr) minmax(460px, 1.4fr);
+  grid-template-columns: minmax(320px, 0.75fr) minmax(560px, 1.25fr);
   padding: 0;
   overflow: hidden;
 }
@@ -1099,7 +1099,7 @@ th {
   min-height: 400px;
   border: 0;
 }
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   .venue-contact-map {
     grid-template-columns: 1fr;
   }
@@ -1107,8 +1107,9 @@ th {
     padding: 34px 28px;
   }
   .contact-map, .contact-map iframe {
-    min-height: 330px;
-  }
+    width: 100%;
+    min-height: 360px;
+}
 }
 /* Version 4 additions */
 .home-utility {
