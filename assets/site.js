@@ -229,3 +229,63 @@ if (approvedTeamsContainer && approvedTeamsStatus) {
       });
   }
 }
+
+// Homepage division counts from the approved-teams feed
+const divisionCountElements = document.querySelectorAll('[data-division-count]');
+
+if (divisionCountElements.length) {
+  const endpoint = String(CONFIG.registrationEndpoint || '');
+
+  const setDivisionCounts = (teams) => {
+    const counts = Array.from(divisionCountElements).reduce((result, element) => {
+      result[element.dataset.divisionCount] = 0;
+      return result;
+    }, {});
+
+    if (Array.isArray(teams)) {
+      teams.forEach((team) => {
+        const division = String(team.division || '').trim().toUpperCase();
+
+        if (Object.prototype.hasOwnProperty.call(counts, division)) {
+          counts[division] += 1;
+        }
+      });
+    }
+
+    divisionCountElements.forEach((element) => {
+      const division = element.dataset.divisionCount;
+      const count = counts[division] || 0;
+
+      element.textContent = count === 0
+        ? 'Be the first approved team'
+        : `${count} approved ${count === 1 ? 'team' : 'teams'}`;
+    });
+  };
+
+  const showDivisionCountError = () => {
+    divisionCountElements.forEach((element) => {
+      element.textContent = 'View approved teams';
+    });
+  };
+
+  if (!endpoint) {
+    showDivisionCountError();
+  } else {
+    fetch(`${endpoint}?action=approved-teams`)
+      .then((response) => response.json())
+      .then((result) => {
+        if (!result.ok) {
+          throw new Error(
+            result.message || 'Unable to load division counts.'
+          );
+        }
+
+        setDivisionCounts(result.teams);
+      })
+      .catch((error) => {
+        console.error(error);
+        showDivisionCountError();
+      });
+  }
+}
+
