@@ -18,6 +18,6 @@ window.CHILL_FEST_CONFIG = {
   },
   updates: [
     { title: "Registration is open", text: "Free team entry is available for 7U through 12U divisions." },
-    { title: "Schedules and brackets", text: "Official game times and downloadable brackets will be posted after the field is finalized." }
+    { title: "Schedules and brackets", text: "Official game times and live brackets will be posted after the field is finalized." }
   ]
 };
