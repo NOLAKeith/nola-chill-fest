@@ -1638,8 +1638,13 @@ th {
 
 /* Championship sits vertically between the semifinals */
 .bracket-round-3 {
-  display: flex;
-  align-items: center;
+  display: grid;
+  align-content: center;
+  width: 100%;
+}
+
+.bracket-round-3 .bracket-game {
+  width: 100%;
 }
 .bracket-game {
   position: relative;
