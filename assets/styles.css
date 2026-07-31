@@ -364,7 +364,12 @@ section {
   border: 26px solid rgba(40, 200, 255, .07);
   border-radius: 50%;
   right: -38px;
-  bottom: -45px
+  bottom: -45px;
+  pointer-events: none;
+}
+.division-card > * {
+  position: relative;
+  z-index: 1;
 }
 .division {
   font: 900 50px 'Barlow Condensed';
