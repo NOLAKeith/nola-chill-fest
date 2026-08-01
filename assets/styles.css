@@ -1233,6 +1233,28 @@ th {
 .sponsor-placeholder {
   margin-top: 24px;
 }
+.bracket-game-label {
+    border-radius: 12px 12px 0 0;
+}
+
+.bracket-game-meta {
+    border-radius: 0 0 12px 12px;
+}
+.bracket-game-label,
+.bracket-game-meta {
+    padding: 10px 14px;
+}
+.bracket-game-label,
+.bracket-game-meta {
+    background: #1a314b;      /* or your schedule header color */
+}
+.bracket-game-label {
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.bracket-game-meta {
+    border-top: 1px solid rgba(255,255,255,.08);
+}
 .bracket-card {
   min-height: 310px;
   display: flex;
