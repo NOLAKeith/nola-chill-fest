@@ -1587,6 +1587,7 @@ th {
 }
 
 .live-bracket {
+  position: relative;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 290px;
@@ -1595,9 +1596,10 @@ th {
 }
 
 .bracket-round-column {
+  position: relative;
+  z-index: 1;
   padding: 0;
 }
-
 .bracket-round-header {
   position: relative;
   z-index: 3;
@@ -1624,7 +1626,18 @@ th {
   font-weight: 800;
   text-transform: uppercase;
 }
-
+.bracket-connectors {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.bracket-connectors path {
+  stroke: rgba(150, 210, 255, .38);
+  stroke-width: 1;
+  shape-rendering: geometricPrecision;
+}
 .bracket-round-games {
   display: grid;
   align-content: space-around;
@@ -1727,7 +1740,11 @@ th {
     width: auto;
   }
 }
-
+@media print {
+  .bracket-connectors path {
+    stroke: #777 !important;
+  }
+}
 @media (max-width: 620px) {
   .live-bracket {
     grid-auto-columns: 265px;
