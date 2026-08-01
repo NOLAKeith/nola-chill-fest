@@ -1653,16 +1653,6 @@ th {
   box-shadow: 0 13px 34px rgba(0, 0, 0, .24);
 }
 
-.bracket-round-column:not(:last-child) .bracket-game::after {
-  content: "";
-  position: absolute;
-  right: -43px;
-  top: 50%;
-  width: 42px;
-  height: 1px;
-  background: rgba(150, 210, 255, .28);
-}
-
 .bracket-game-label {
   display: flex;
   justify-content: space-between;
