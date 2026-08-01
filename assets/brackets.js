@@ -52,7 +52,7 @@
       <article class="bracket-game${statusClass(game.status)}" data-game-id="${escapeHtml(game.gameId)}" data-advances-to="${escapeHtml(game.winnerAdvancesTo || '')}">
         <div class="bracket-game-label">
           <span>${escapeHtml(game.gameId)}</span>
-          <span>${escapeHtml(game.status || '')}</span>
+          <span>${game.status === 'Published' ? '' : escapeHtml(game.status || '')}</span>
         </div>
         ${teamRow(game.awayTeam, game.awaySeed, game.awayScore, game.winner, game.status)}
         ${teamRow(game.homeTeam, game.homeSeed, game.homeScore, game.winner, game.status)}
