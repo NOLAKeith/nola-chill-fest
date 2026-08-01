@@ -49,7 +49,7 @@
   const gameCard = game => {
     const meta = [game.dateLabel, game.time, game.field].filter(Boolean).join(' · ');
     return `
-      <article class="bracket-game${statusClass(game.status)}" data-game-id="${escapeHtml(game.gameId)}">
+      <article class="bracket-game${statusClass(game.status)}" data-game-id="${escapeHtml(game.gameId)}" data-advances-to="${escapeHtml(game.winnerAdvancesTo || '')}">
         <div class="bracket-game-label">
           <span>${escapeHtml(game.gameId)}</span>
           <span>${escapeHtml(game.status || '')}</span>
@@ -59,6 +59,56 @@
         ${meta ? `<div class="bracket-game-meta">${escapeHtml(meta)}</div>` : ''}
       </article>
     `;
+  };
+
+  const bracketHeightFor = games => {
+    const counts = games.reduce((result, game) => {
+      const key = String(game.roundOrder || 0);
+      result[key] = (result[key] || 0) + 1;
+      return result;
+    }, {});
+
+    const largestRound = Math.max(1, ...Object.values(counts));
+    if (largestRound <= 2) return 360;
+    if (largestRound === 3) return 500;
+    return 620;
+  };
+
+  const drawConnectors = games => {
+    bracket.querySelector('.bracket-connectors')?.remove();
+
+    const bracketRect = bracket.getBoundingClientRect();
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.classList.add('bracket-connectors');
+    svg.setAttribute('width', String(bracket.scrollWidth));
+    svg.setAttribute('height', String(bracket.scrollHeight));
+    svg.setAttribute('viewBox', `0 0 ${bracket.scrollWidth} ${bracket.scrollHeight}`);
+    svg.setAttribute('aria-hidden', 'true');
+
+    games.forEach(game => {
+      const nextGameId = String(game.winnerAdvancesTo || '').trim();
+      if (!nextGameId) return;
+
+      const source = bracket.querySelector(`[data-game-id="${CSS.escape(game.gameId)}"]`);
+      const target = bracket.querySelector(`[data-game-id="${CSS.escape(nextGameId)}"]`);
+      if (!source || !target) return;
+
+      const sourceRect = source.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const x1 = sourceRect.right - bracketRect.left;
+      const y1 = sourceRect.top - bracketRect.top + (sourceRect.height / 2);
+      const x2 = targetRect.left - bracketRect.left;
+      const y2 = targetRect.top - bracketRect.top + (targetRect.height / 2);
+      const midX = x1 + ((x2 - x1) / 2);
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${x1} ${y1} H ${midX} V ${y2} H ${x2}`);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('vector-effect', 'non-scaling-stroke');
+      svg.appendChild(path);
+    });
+
+    bracket.prepend(svg);
   };
 
   const render = () => {
@@ -79,6 +129,8 @@
       }])
     ).values()];
 
+    bracket.style.setProperty('--bracket-height', `${bracketHeightFor(games)}px`);
+
     bracket.innerHTML = rounds.map(round => {
       const roundGames = games
         .filter(game => Number(game.roundOrder) === Number(round.order) && game.round === round.name)
@@ -96,6 +148,8 @@
         </section>
       `;
     }).join('');
+
+    requestAnimationFrame(() => drawConnectors(games));
 
     const latest = games.map(game => game.lastUpdated).filter(Boolean).sort().at(-1);
     updated.textContent = latest ? `Updated ${latest}` : '';
@@ -133,6 +187,11 @@
 
   select.addEventListener('change', render);
   printButton.addEventListener('click', () => window.print());
+  window.addEventListener('resize', () => {
+    const division = select.value;
+    const games = bracketsByDivision[division] || [];
+    if (games.length) requestAnimationFrame(() => drawConnectors(games));
+  });
 
   try {
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
