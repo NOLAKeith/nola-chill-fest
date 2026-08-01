@@ -1834,4 +1834,9 @@ th {
     color: #333 !important;
   }
 }
+/* SVG now handles all bracket connectors */
+.live-bracket .bracket-game::after {
+  content: none !important;
+  display: none !important;
+}
 
