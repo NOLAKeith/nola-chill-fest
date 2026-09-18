@@ -94,196 +94,248 @@ if (updates && Array.isArray(CONFIG.updates)) {
 }
 document.querySelectorAll('[data-sponsors]').forEach(el => { if (CONFIG.showSponsors === false) el.remove(); });
 
+
 const approvedTeamsContainer =
     document.getElementById('approved-teams');
 
 const approvedTeamsStatus =
     document.getElementById('approved-teams-status');
 
-if (approvedTeamsContainer && approvedTeamsStatus) {
-    const endpoint = String(CONFIG.registrationEndpoint || '');
+const divisionCountElements =
+    document.querySelectorAll('[data-division-count]');
 
-    const escapeHtml = (value) => {
-        return String(value || '')
-            .replaceAll('&', '&amp;')
-            .replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;')
-            .replaceAll('"', '&quot;')
-            .replaceAll("'", '&#039;');
-    };
+const APPROVED_TEAMS_CACHE_KEY = 'nolaChillFestApprovedTeamsV2';
 
-    const renderApprovedTeams = (teams) => {
-        if (!Array.isArray(teams) || teams.length === 0) {
-            approvedTeamsStatus.innerHTML = `
-        <div class="empty-icon">⚾</div>
-        <h2>Teams Will Appear Here</h2>
-        <p>No approved teams have been published yet.</p>
-        <a class="btn" href="register.html">Register Your Team</a>
-      `;
+const escapeApprovedTeamsHtml = (value) => {
+    return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+};
 
-            approvedTeamsStatus.hidden = false;
-            approvedTeamsContainer.hidden = true;
-            return;
+const readApprovedTeamsCache = () => {
+    try {
+        const cached = JSON.parse(
+            localStorage.getItem(APPROVED_TEAMS_CACHE_KEY) || 'null'
+        );
+
+        if (
+            !cached ||
+            !Array.isArray(cached.teams) ||
+            !Number.isFinite(Number(cached.savedAt))
+        ) {
+            return null;
         }
 
-        const grouped = teams.reduce((groups, team) => {
-            const division = team.division || 'Other';
+        return cached;
+    } catch (error) {
+        return null;
+    }
+};
 
-            if (!groups[division]) {
-                groups[division] = [];
+const writeApprovedTeamsCache = (teams) => {
+    try {
+        localStorage.setItem(
+            APPROVED_TEAMS_CACHE_KEY,
+            JSON.stringify({
+                savedAt: Date.now(),
+                teams: Array.isArray(teams) ? teams : []
+            })
+        );
+    } catch (error) {}
+};
+
+const renderApprovedTeams = (teams) => {
+    if (!approvedTeamsContainer || !approvedTeamsStatus) return;
+
+    if (!Array.isArray(teams) || teams.length === 0) {
+        approvedTeamsStatus.innerHTML = `
+      <div class="empty-icon">⚾</div>
+      <h2>Teams Will Appear Here</h2>
+      <p>No approved teams have been published yet.</p>
+      <a class="btn" href="register.html">Register Your Team</a>
+    `;
+
+        approvedTeamsStatus.hidden = false;
+        approvedTeamsContainer.hidden = true;
+        return;
+    }
+
+    const grouped = teams.reduce((groups, team) => {
+        const division = team.division || 'Other';
+
+        if (!groups[division]) {
+            groups[division] = [];
+        }
+
+        groups[division].push(team);
+        return groups;
+    }, {});
+
+    approvedTeamsContainer.innerHTML =
+        Object.entries(grouped)
+            .map(([division, divisionTeams]) => {
+                const cards = divisionTeams
+                    .map((team) => {
+                        const location = [
+                            team.organization,
+                            team.teamCity
+                        ]
+                            .filter(Boolean)
+                            .join(' · ');
+
+                        return `
+              <article class="card team-card">
+                <div class="eyebrow">
+                  ${escapeApprovedTeamsHtml(division)}
+                </div>
+
+                <h3>
+                  ${escapeApprovedTeamsHtml(team.teamName)}
+                </h3>
+
+                ${location
+                                ? `<p>${escapeApprovedTeamsHtml(location)}</p>`
+                                : ''
+                            }
+              </article>
+            `;
+                    })
+                    .join('');
+
+                return `
+          <section class="division-section">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">
+                  Tournament Field
+                </div>
+
+                <h2>
+                  ${escapeApprovedTeamsHtml(division)} Division
+                </h2>
+              </div>
+
+              <div class="team-count">
+                ${divisionTeams.length}
+                ${divisionTeams.length === 1 ? 'Team' : 'Teams'}
+              </div>
+            </div>
+
+            <div class="team-grid">
+              ${cards}
+            </div>
+          </section>
+        `;
+            })
+            .join('');
+
+    approvedTeamsStatus.hidden = true;
+    approvedTeamsContainer.hidden = false;
+};
+
+const setDivisionCounts = (teams) => {
+    if (!divisionCountElements.length) return;
+
+    const counts = Array.from(divisionCountElements).reduce(
+        (result, element) => {
+            result[element.dataset.divisionCount] = 0;
+            return result;
+        },
+        {}
+    );
+
+    if (Array.isArray(teams)) {
+        teams.forEach((team) => {
+            const division = String(team.division || '')
+                .trim()
+                .toUpperCase();
+
+            if (
+                Object.prototype.hasOwnProperty.call(
+                    counts,
+                    division
+                )
+            ) {
+                counts[division] += 1;
+            }
+        });
+    }
+
+    divisionCountElements.forEach((element) => {
+        const division = element.dataset.divisionCount;
+        const count = counts[division] || 0;
+
+        element.textContent =
+            count === 0
+                ? 'Be the first team to register!'
+                : `${count} registered ${count === 1 ? 'team' : 'teams'}`;
+    });
+};
+
+const showDivisionCountError = () => {
+    divisionCountElements.forEach((element) => {
+        element.textContent = 'View registered teams';
+    });
+};
+
+const renderApprovedTeamsEverywhere = (teams) => {
+    renderApprovedTeams(teams);
+    setDivisionCounts(teams);
+};
+
+const endpoint = String(CONFIG.registrationEndpoint || '');
+const cachedApprovedTeams = readApprovedTeamsCache();
+
+if (cachedApprovedTeams) {
+    renderApprovedTeamsEverywhere(cachedApprovedTeams.teams);
+}
+
+if (
+    (approvedTeamsContainer && approvedTeamsStatus) ||
+    divisionCountElements.length
+) {
+    if (!endpoint) {
+        if (!cachedApprovedTeams) {
+            if (approvedTeamsStatus) {
+                approvedTeamsStatus.innerHTML = `
+          <div class="empty-icon">⚠️</div>
+          <h2>Teams Could Not Be Loaded</h2>
+          <p>The approved-team feed is not connected.</p>
+        `;
             }
 
-            groups[division].push(team);
-            return groups;
-        }, {});
-
-        approvedTeamsContainer.innerHTML =
-            Object.entries(grouped)
-                .map(([division, divisionTeams]) => {
-                    const cards = divisionTeams
-                        .map((team) => {
-                            const location = [
-                                team.organization,
-                                team.teamCity
-                            ]
-                                .filter(Boolean)
-                                .join(' · ');
-
-                            return `
-                <article class="card team-card">
-                  <div class="eyebrow">
-                    ${escapeHtml(division)}
-                  </div>
-
-                  <h3>
-                    ${escapeHtml(team.teamName)}
-                  </h3>
-
-                  ${location
-                                    ? `<p>${escapeHtml(location)}</p>`
-                                    : ''
-                                }
-                </article>
-              `;
-                        })
-                        .join('');
-
-                    return `
-            <section class="division-section">
-              <div class="section-head">
-                <div>
-                  <div class="eyebrow">
-                    Tournament Field
-                  </div>
-
-                  <h2>
-                    ${escapeHtml(division)} Division
-                  </h2>
-                </div>
-
-                <div class="team-count">
-                  ${divisionTeams.length}
-                  ${divisionTeams.length === 1 ? 'Team' : 'Teams'}
-                </div>
-              </div>
-
-              <div class="team-grid">
-                ${cards}
-              </div>
-            </section>
-          `;
-                })
-                .join('');
-
-        approvedTeamsStatus.hidden = true;
-        approvedTeamsContainer.hidden = false;
-    };
-
-    if (!endpoint) {
-        approvedTeamsStatus.innerHTML = `
-      <div class="empty-icon">⚠️</div>
-      <h2>Teams Could Not Be Loaded</h2>
-      <p>The approved-team feed is not connected.</p>
-    `;
+            showDivisionCountError();
+        }
     } else {
         fetch(`${endpoint}?action=approved-teams`)
             .then((response) => response.json())
             .then((result) => {
-                if (!result.ok) {
+                if (!result.ok || !Array.isArray(result.teams)) {
                     throw new Error(
                         result.message || 'Unable to load teams.'
                     );
                 }
 
-                renderApprovedTeams(result.teams);
+                writeApprovedTeamsCache(result.teams);
+                renderApprovedTeamsEverywhere(result.teams);
             })
             .catch((error) => {
                 console.error(error);
 
-                approvedTeamsStatus.innerHTML = `
-          <div class="empty-icon">⚠️</div>
-          <h2>Teams Could Not Be Loaded</h2>
-          <p>Please refresh the page or check back shortly.</p>
-        `;
-            });
-    }
-}
+                if (!cachedApprovedTeams) {
+                    if (approvedTeamsStatus) {
+                        approvedTeamsStatus.innerHTML = `
+              <div class="empty-icon">⚠️</div>
+              <h2>Teams Could Not Be Loaded</h2>
+              <p>Please refresh the page or check back shortly.</p>
+            `;
+                    }
 
-// Homepage division counts from the approved-teams feed
-const divisionCountElements = document.querySelectorAll('[data-division-count]');
-
-if (divisionCountElements.length) {
-    const endpoint = String(CONFIG.registrationEndpoint || '');
-
-    const setDivisionCounts = (teams) => {
-        const counts = Array.from(divisionCountElements).reduce((result, element) => {
-            result[element.dataset.divisionCount] = 0;
-            return result;
-        }, {});
-
-        if (Array.isArray(teams)) {
-            teams.forEach((team) => {
-                const division = String(team.division || '').trim().toUpperCase();
-
-                if (Object.prototype.hasOwnProperty.call(counts, division)) {
-                    counts[division] += 1;
+                    showDivisionCountError();
                 }
-            });
-        }
-
-        divisionCountElements.forEach((element) => {
-            const division = element.dataset.divisionCount;
-            const count = counts[division] || 0;
-
-            element.textContent = count === 0
-                ? 'Be the first team to register!'
-                : `${count} registered ${count === 1 ? 'team' : 'teams'}`;
-        });
-    };
-
-    const showDivisionCountError = () => {
-        divisionCountElements.forEach((element) => {
-            element.textContent = 'View registered teams';
-        });
-    };
-
-    if (!endpoint) {
-        showDivisionCountError();
-    } else {
-        fetch(`${endpoint}?action=approved-teams`)
-            .then((response) => response.json())
-            .then((result) => {
-                if (!result.ok) {
-                    throw new Error(
-                        result.message || 'Unable to load division counts.'
-                    );
-                }
-
-                setDivisionCounts(result.teams);
-            })
-            .catch((error) => {
-                console.error(error);
-                showDivisionCountError();
             });
     }
 }
