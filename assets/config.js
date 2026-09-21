@@ -17,7 +17,7 @@ window.CHILL_FEST_CONFIG = {
     coordinator: { name: "Keith Nunez", title: "Tournament Coordinator", email: "keith.nunez@gmail.com", phone: "504-256-8937" }
   },
   updates: [
-    { title: "Registration is Open", text: "Free team entry is available for 7U through 12U divisions." },
+    { title: "Registration is Open for 12U ONLY", text: "Free team entry is still available for our 12U division only." },
     { title: "Schedules and Brackets", text: "Official game times and brackets will be posted after the field is finalized." }
   ]
 };
