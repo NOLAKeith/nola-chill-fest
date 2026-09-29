@@ -17,7 +17,7 @@ window.CHILL_FEST_CONFIG = {
     coordinator: { name: "Keith Nunez", title: "Tournament Coordinator", email: "keith.nunez@gmail.com", phone: "504-256-8937" }
   },
   updates: [
-    { title: "Registration has been reopened for all divisions and will close Wednesday, Sept. 30 at 1 PM." },
+    { title: "Registration Has Been Reopened", text: " Register your team now before registration closes Wednesday, Sept. 30 at 1 PM." },
     { title: "Schedules and Brackets", text: "Official game times and brackets will be posted after the field is finalized." }
   ]
 };
