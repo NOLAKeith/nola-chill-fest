@@ -155,7 +155,7 @@ const renderApprovedTeams = (teams) => {
       <div class="empty-icon">⚾</div>
       <h2>Teams Will Appear Here</h2>
       <p>No approved teams have been published yet.</p>
-      <a class="btn" href="register.html">Register Your Team</a>
+      <a class="btn" href="schedule.html">View Schedule</a>
     `;
 
         approvedTeamsStatus.hidden = false;
@@ -270,7 +270,7 @@ const setDivisionCounts = (teams) => {
 
         element.textContent =
             count === 0
-                ? 'Be the first team to register!'
+                ? 'No teams listed'
                 : `${count} registered ${count === 1 ? 'team' : 'teams'}`;
     });
 };
