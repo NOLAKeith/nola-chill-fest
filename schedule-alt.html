@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tournament Schedule | NOLA Chill Fest</title>
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+.schedule-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.schedule-summary{margin:0 0 10px;color:#8fa3bb;font-weight:700}
+.schedule-list{display:grid;gap:22px}
+.schedule-day{display:grid;gap:10px}
+.schedule-day h2{margin:0;font-size:clamp(1.2rem,3vw,1.55rem)}
+.schedule-games{display:grid;gap:8px}
+.schedule-game{display:grid;grid-template-columns:105px 105px minmax(0,1fr) 70px;align-items:stretch;border:1px solid rgba(148,163,184,.28);border-radius:12px;background:#fff;color:#101828;overflow:hidden;box-shadow:0 5px 16px rgba(15,23,42,.045)}
+.schedule-game-top{display:contents}
+.schedule-time,.schedule-field{display:flex;align-items:center;padding:12px 14px;font-weight:800;color:#344054;background:#f8fafc;border-right:1px solid #e8edf3}
+.schedule-time{font-variant-numeric:tabular-nums}
+.schedule-field{font-size:.86rem}
+.schedule-main{padding:10px 14px;min-width:0}
+.schedule-kicker{font-size:.68rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#008fc7;line-height:1.2;margin-bottom:5px}
+.schedule-matchup{display:grid;gap:0}
+.schedule-team-row{display:grid;grid-template-columns:minmax(0,1fr) 2.25ch;column-gap:10px;align-items:center;min-height:27px;padding:3px 0}
+.schedule-team-row+.schedule-team-row{border-top:1px solid #eef2f6}
+.schedule-team{font-size:.92rem;font-weight:800;line-height:1.2;color:#101828;min-width:0}
+.schedule-score{display:block;width:2.25ch;font-size:1.05rem;font-weight:900;line-height:1;text-align:right;color:#101828;font-variant-numeric:tabular-nums}
+.schedule-score-winner{color:#00A8FF}
+.schedule-score-loser{color:#98a2b3}
+.schedule-status{display:flex;align-items:center;justify-content:center;padding:10px 8px;font-size:.67rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#667085;background:#f8fafc;border-left:1px solid #e8edf3;text-align:center}
+.schedule-status.final{color:#087443;background:#f2fbf6}
+.schedule-status.cancelled{color:#667085;background:#f5f5f5}
+.schedule-empty{padding:32px 18px;text-align:center;border:1px dashed #cbd5e1;border-radius:14px}
+.schedule-page-link{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 18px;padding:14px 16px;border:1px solid rgba(148,163,184,.28);border-radius:14px;background:rgba(15,37,56,.55)}
+.schedule-page-link p{margin:0;color:#b8c6d8;font-weight:700}
+.schedule-page-link .btn{flex:0 0 auto}
+@media(max-width:820px){
+  .schedule-game{grid-template-columns:92px 92px minmax(0,1fr) 62px}
+  .schedule-time,.schedule-field{padding:10px 11px}
+}
+@media(max-width:720px){
+  .schedule-page-link{align-items:flex-start;flex-direction:column}
+  .schedule-controls{grid-template-columns:1fr;margin-bottom:12px}
+  .schedule-summary{margin-bottom:5px}
+  .schedule-list{gap:16px}
+  .schedule-day{gap:7px}
+  .schedule-games{gap:9px}
+  .schedule-game{grid-template-columns:1fr;overflow:hidden}
+  .schedule-game-top{display:grid;grid-template-columns:1fr 1fr;background:#f8fafc;border-bottom:1px solid #e8edf3}
+  .schedule-time,.schedule-field{padding:9px 12px;border-right:0;background:transparent;font-size:.8rem}
+  .schedule-field{justify-content:flex-end}
+  .schedule-main{padding:10px 12px}
+  .schedule-kicker{font-size:.68rem}
+  .schedule-team{font-size:.89rem}
+  .schedule-status{justify-content:flex-start;border-left:0;border-top:1px solid #e8edf3;padding:8px 12px}
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="index.html"><span class="brand-mark">⚾</span><span>NOLA Chill Fest<small>October 3–4, 2026</small></span></a>
+    <nav class="desktop-nav"><a href="index.html">Home</a><a href="register.html">Register</a><a data-whos-coming href="whos-coming.html">Who's Coming</a><a href="tournament-central.html">Tournament Central</a><a href="rules.html">Rules</a><a href="sponsors.html">Sponsors</a><a href="contact.html">Contact</a></nav>
+    <a class="nav-cta" href="register.html">Register Team</a>
+    <button class="menu-btn" aria-label="Open menu">☰</button>
+  </div>
+  <nav class="mobile-nav"><a href="index.html">Home</a><a href="register.html">Register</a><a data-whos-coming href="whos-coming.html">Who's Coming</a><a href="tournament-central.html">Tournament Central</a><a href="rules.html">Rules</a><a href="sponsors.html">Sponsors</a><a href="contact.html">Contact</a></nav>
+</header>
+
+<main>
+  <section class="page-hero"><div class="wrap"><div class="eyebrow">Times, fields and matchups</div><h1>Tournament Schedule</h1></div></section>
+  <section class="content">
+    <div class="wrap">
+      <div class="schedule-page-link">
+        <p>Follow pool records and seeding as results are posted.</p>
+        <a class="btn secondary" href="standings.html">View Standings →</a>
+      </div>
+      <div class="schedule-controls" id="schedule-controls">
+  <select class="select" id="schedule-division" aria-label="Filter by division">
+    <option value="">All divisions</option>
+  </select>
+
+  <select class="select" id="schedule-team" aria-label="Filter by team">
+    <option value="">All teams</option>
+  </select>
+
+  <select class="select" id="schedule-date" aria-label="Filter by date">
+    <option value="">All dates</option>
+  </select>
+
+  <select class="select" id="schedule-field" aria-label="Filter by field">
+    <option value="">All fields</option>
+  </select>
+</div>
+      <p class="schedule-summary" id="schedule-summary">Loading schedule…</p>
+      <div id="schedule-results" class="schedule-list" aria-live="polite"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer"><div class="wrap"><div class="footer-grid"><div><div class="footer-title">NOLA Chill Fest</div><p class="small">Youth baseball. Great competition. A tournament weekend built for players, coaches and families.</p></div><div><div class="footer-title">Tournament</div><div class="footer-links"><a href="register.html">Register</a><a href="tournament-central.html">Tournament Central</a><a href="rules.html">Rules</a><a href="sponsors.html">Sponsors</a></div></div><div><div class="footer-title">Contact</div><div class="footer-links"><a href="tel:15043120863">Patrick: 504-312-0863</a><a href="tel:15042568937">Keith: 504-256-8937</a><a href="mailto:patrickdcresson@gmail.com">patrickdcresson@gmail.com</a><span>Kenner, Louisiana</span></div></div></div><div class="copyright">© <span data-year></span> NOLA Chill Fest. All rights reserved.</div></div></footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/site.js"></script>
+<script src="assets/schedule-list-alt.js?v=20260930-list-alt"></script>
+
+</body>
+</html>
