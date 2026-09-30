@@ -262,7 +262,7 @@
   };
 
   const scoreClass = (game, side) => {
-    if (game.status !== 'Final') return 'schedule-score';
+    if (!['Final', 'Forfeit'].includes(game.status)) return 'schedule-score';
 
     const awayScore = Number(game.awayScore);
     const homeScore = Number(game.homeScore);
@@ -281,24 +281,24 @@
   };
 
   const matchupHtml = game => {
-    const isFinal = game.status === 'Final';
-    const awayScore = isFinal && game.awayScore !== null
+    const isCompleted = ['Final', 'Forfeit'].includes(game.status);
+    const awayScore = isCompleted && game.awayScore !== null
       ? escapeHtml(game.awayScore)
       : '';
-    const homeScore = isFinal && game.homeScore !== null
+    const homeScore = isCompleted && game.homeScore !== null
       ? escapeHtml(game.homeScore)
       : '';
 
     return `
-      <div class="schedule-matchup ${isFinal ? 'is-final' : ''}">
+      <div class="schedule-matchup ${isCompleted ? 'is-final' : ''}">
         <div class="schedule-team-row">
           <span class="schedule-team">${escapeHtml(game.away)}</span>
-          ${isFinal ? `<strong class="${scoreClass(game, 'away')}">${awayScore}</strong>` : ''}
+          ${isCompleted ? `<strong class="${scoreClass(game, 'away')}">${awayScore}</strong>` : ''}
         </div>
 
         <div class="schedule-team-row">
           <span class="schedule-team">${escapeHtml(game.home)}</span>
-          ${isFinal ? `<strong class="${scoreClass(game, 'home')}">${homeScore}</strong>` : ''}
+          ${isCompleted ? `<strong class="${scoreClass(game, 'home')}">${homeScore}</strong>` : ''}
         </div>
       </div>
     `;
@@ -360,8 +360,8 @@
 
                 ${matchupHtml(game)}
 
-                <div class="schedule-status${game.status === 'Final' ? ' final' : ''}" aria-hidden="${game.status === 'Final' ? 'false' : 'true'}">
-                  ${game.status === 'Final' ? 'Final' : '&nbsp;'}
+                <div class="schedule-status${['Final', 'Forfeit'].includes(game.status) ? ' final' : ''}" aria-hidden="${game.status === 'Published' ? 'true' : 'false'}">
+                  ${game.status === 'Published' ? '&nbsp;' : escapeHtml(game.status)}
                 </div>
               </article>
             `).join('')}
