@@ -53,7 +53,7 @@
 
     games
       .filter(game =>
-        game.status === 'Final' &&
+        ['Final', 'Forfeit'].includes(game.status) &&
         String(game.round || '').toLowerCase().includes('pool')
       )
       .forEach(game => {
