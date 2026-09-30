@@ -26,10 +26,14 @@
 .schedule-status{margin-top:6px;font-size:.68rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#667085}
 .schedule-status.final{color:#087443}
 .schedule-empty{padding:32px 18px;text-align:center;border:1px dashed #cbd5e1;border-radius:14px}
+.schedule-page-link{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 18px;padding:14px 16px;border:1px solid rgba(148,163,184,.28);border-radius:14px;background:rgba(15,37,56,.55)}
+.schedule-page-link p{margin:0;color:#b8c6d8;font-weight:700}
+.schedule-page-link .btn{flex:0 0 auto}
 @media(max-width:980px){
   .schedule-games{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:720px){
+  .schedule-page-link{align-items:flex-start;flex-direction:column}
   .schedule-controls{grid-template-columns:1fr;margin-bottom:12px}
   .schedule-summary{margin-bottom:5px}
   .schedule-list{gap:14px}
@@ -59,6 +63,10 @@
   <section class="page-hero"><div class="wrap"><div class="eyebrow">Times, fields and matchups</div><h1>Tournament Schedule</h1></div></section>
   <section class="content">
     <div class="wrap">
+      <div class="schedule-page-link">
+        <p>Follow pool records and seeding as results are posted.</p>
+        <a class="btn secondary" href="standings.html">View Standings →</a>
+      </div>
       <div class="schedule-controls" id="schedule-controls">
   <select class="select" id="schedule-division" aria-label="Filter by division">
     <option value="">All divisions</option>
