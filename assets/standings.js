@@ -50,77 +50,137 @@
 
   const calculate = games => {
     const tables = {};
+    const headToHead = {};
 
-    games
-      .filter(game =>
-        ['Final', 'Forfeit'].includes(game.status) &&
-        String(game.round || '').toLowerCase().includes('pool')
-      )
-      .forEach(game => {
-        const division = String(game.division || 'Other').trim();
-        if (!tables[division]) tables[division] = {};
+    const completedPoolGames = games.filter(game =>
+      ['Final', 'Forfeit'].includes(String(game.status || '').trim()) &&
+      String(game.round || '').toLowerCase().includes('pool')
+    );
 
-        const getTeam = name => {
-          const teamName = String(name || '').trim();
-          if (!tables[division][teamName]) {
-            tables[division][teamName] = {
-              team: teamName,
-              wins: 0,
-              losses: 0,
-              ties: 0,
-              rf: 0,
-              ra: 0
-            };
-          }
-          return tables[division][teamName];
-        };
+    completedPoolGames.forEach(game => {
+      const division = String(game.division || 'Other').trim();
+      if (!tables[division]) tables[division] = {};
+      if (!headToHead[division]) headToHead[division] = {};
 
-        const awayScore = Number(game.awayScore);
-        const homeScore = Number(game.homeScore);
-
-        if (!Number.isFinite(awayScore) || !Number.isFinite(homeScore)) return;
-
-        const away = getTeam(game.away);
-        const home = getTeam(game.home);
-
-        away.rf += awayScore;
-        away.ra += homeScore;
-        home.rf += homeScore;
-        home.ra += awayScore;
-
-        if (awayScore > homeScore) {
-          away.wins += 1;
-          home.losses += 1;
-        } else if (homeScore > awayScore) {
-          home.wins += 1;
-          away.losses += 1;
-        } else {
-          away.ties += 1;
-          home.ties += 1;
+      const getTeam = name => {
+        const teamName = String(name || '').trim();
+        if (!tables[division][teamName]) {
+          tables[division][teamName] = {
+            team: teamName,
+            wins: 0,
+            losses: 0,
+            ties: 0,
+            rf: 0,
+            ra: 0
+          };
         }
-      });
+        return tables[division][teamName];
+      };
+
+      const awayScore = Number(game.awayScore);
+      const homeScore = Number(game.homeScore);
+      if (!Number.isFinite(awayScore) || !Number.isFinite(homeScore)) return;
+
+      const awayName = String(game.away || '').trim();
+      const homeName = String(game.home || '').trim();
+      if (!awayName || !homeName) return;
+
+      const away = getTeam(awayName);
+      const home = getTeam(homeName);
+
+      away.rf += awayScore;
+      away.ra += homeScore;
+      home.rf += homeScore;
+      home.ra += awayScore;
+
+      const h2hKey = [awayName, homeName].sort().join('||');
+      if (!headToHead[division][h2hKey]) {
+        headToHead[division][h2hKey] = {};
+      }
+      const h2h = headToHead[division][h2hKey];
+      h2h[awayName] = h2h[awayName] || { wins: 0, losses: 0, ties: 0 };
+      h2h[homeName] = h2h[homeName] || { wins: 0, losses: 0, ties: 0 };
+
+      if (awayScore > homeScore) {
+        away.wins += 1;
+        home.losses += 1;
+        h2h[awayName].wins += 1;
+        h2h[homeName].losses += 1;
+      } else if (homeScore > awayScore) {
+        home.wins += 1;
+        away.losses += 1;
+        h2h[homeName].wins += 1;
+        h2h[awayName].losses += 1;
+      } else {
+        away.ties += 1;
+        home.ties += 1;
+        h2h[awayName].ties += 1;
+        h2h[homeName].ties += 1;
+      }
+    });
+
+    const manualOverrides = CONFIG.standingsOverrides || {};
+
+    const compareHeadToHead = (division, a, b) => {
+      const key = [a.team, b.team].sort().join('||');
+      const record = headToHead[division]?.[key];
+      if (!record || !record[a.team] || !record[b.team]) return 0;
+
+      const aGames = record[a.team].wins + record[a.team].losses + record[a.team].ties;
+      const bGames = record[b.team].wins + record[b.team].losses + record[b.team].ties;
+      if (!aGames || !bGames) return 0;
+
+      const aPct = (record[a.team].wins + record[a.team].ties * 0.5) / aGames;
+      const bPct = (record[b.team].wins + record[b.team].ties * 0.5) / bGames;
+      return bPct - aPct;
+    };
 
     return Object.fromEntries(
-      Object.entries(tables).map(([division, teams]) => [
-        division,
-        Object.values(teams)
-          .map(team => {
-            const gamesPlayed = team.wins + team.losses + team.ties;
-            return {
-              ...team,
-              pct: gamesPlayed
-                ? (team.wins + (team.ties * 0.5)) / gamesPlayed
-                : 0
-            };
-          })
-          .sort((a, b) =>
+      Object.entries(tables).map(([division, teams]) => {
+        const overrides = Array.isArray(manualOverrides[division])
+          ? manualOverrides[division].map(name => String(name || '').trim())
+          : [];
+
+        const rows = Object.values(teams).map(team => {
+          const gamesPlayed = team.wins + team.losses + team.ties;
+          return {
+            ...team,
+            pct: gamesPlayed
+              ? (team.wins + (team.ties * 0.5)) / gamesPlayed
+              : 0
+          };
+        });
+
+        rows.sort((a, b) => {
+          const aOverride = overrides.indexOf(a.team);
+          const bOverride = overrides.indexOf(b.team);
+          if (aOverride !== -1 || bOverride !== -1) {
+            if (aOverride === -1) return 1;
+            if (bOverride === -1) return -1;
+            return aOverride - bOverride;
+          }
+
+          // Official order: Win/Loss, Head-to-Head, Runs Allowed, Runs Scored.
+          const recordOrder =
             b.pct - a.pct ||
             b.wins - a.wins ||
-            (b.rf - b.ra) - (a.rf - a.ra) ||
-            a.ra - b.ra ||
-            a.team.localeCompare(b.team)
-          )
-      ])
+            a.losses - b.losses ||
+            b.ties - a.ties;
+          if (recordOrder) return recordOrder;
+
+          const h2hOrder = compareHeadToHead(division, a, b);
+          if (h2hOrder) return h2hOrder;
+
+          if (a.ra !== b.ra) return a.ra - b.ra;
+          if (a.rf !== b.rf) return b.rf - a.rf;
+
+          // Coin flip cannot be safely automated because it must remain stable.
+          // Use CONFIG.standingsOverrides for any still-unresolved tie.
+          return a.team.localeCompare(b.team);
+        });
+
+        return [division, rows];
+      })
     );
   };
 
